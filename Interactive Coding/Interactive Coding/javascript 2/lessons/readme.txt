@@ -1,6 +1,7 @@
 
 The LESSONS folder includes four modules:
 
+
 Programming Basics, Basic Patterns, Interactive Basics and Building Basics
 
 You can see these from the index.html page
