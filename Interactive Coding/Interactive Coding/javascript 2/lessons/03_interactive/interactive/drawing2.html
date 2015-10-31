@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Drawing - JavaScript Interactive Basics</title>
+<link href="interactive.css" rel="stylesheet" type="text/css" />
+<script>var zon = false; // false for no comments from danzen.js</script>
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+<style>
+	#logo {position:absolute; left:100px; top:100px;}
+	#myCanvas {background-color: white;}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="createjs-2015.05.21.min.js"></script>
+
+<script>
+
+window.addEventListener('load', interactive);
+
+function interactive() {
+
+	zog("____1.5 DYNAMIC DRAWING____");
+
+	var stage = new createjs.Stage("myCanvas");  // createjs is name stage , class is function that has a capital letter
+	stage.enableMouseOver(10); // 10 times per second
+
+	var stageW = stage.canvas.width;
+	var stageH = stage.canvas.height;
+
+var myShape = new createjs.Shape();
+var g = myShape.graphics;
+
+g.s("blue");
+g.ss(100);
+//g.mt(50, 50);
+//g.lt(100, 100);
+
+var lastX = stage.mouseX;
+var lastY = stage.mouseY;
+
+setInterval (function() {
+		//g.mt(50,50);
+		//g.lt(stage.mouseX, stage.mouseY);
+
+		g.mt(lastX, lastY);
+		g.lt(stage.mouseX, stage.mouseY);
+		lastX = stage.mouseX;
+		lastX = stage.mouseY;
+
+		stage.update();
+}, 30);
+
+
+stage.addChild(myShape);
+
+stage.update();
+
+
+}
+</script>
+
+
+</head>
+<body>
+
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<canvas id="myCanvas" width="600" height="600">alternate content</canvas>
+
+
+<footer>
+Mini Site - Interactive Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+
+</body>
+</html>

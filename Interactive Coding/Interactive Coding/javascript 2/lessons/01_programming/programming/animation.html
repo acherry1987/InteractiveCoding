@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript Objects</title>
+<link href="programming.css" rel="stylesheet" type="text/css" />
+
+
+<script>
+
+console.log ("hi from Animation");
+
+window.addEventListener("load", animate);
+
+function animate() {
+
+      var myTimeout = setTimeout(test, 5*1000); //function, milliseconds
+
+      function test () {
+          console.log ("rain");
+      }
+    // <img id="logo" src="images/logo.png" />
+
+    var logo = document.getElementById("logo");
+    //logo.style.border = "3px dashed #666";
+    // logo.style.padding = "10px";
+
+
+    var myInterval = setInterval(move, 10); // after 1 second
+    var x = 0;
+    // var y = 0;
+    function move() {
+      // x++; // x increases by 1 pixel
+      if (x > 550) {
+        // clearInterval(myInterval); // stops animation
+        x = -300;
+      }
+
+       x += 5 // x will move 5 pixels
+      // y += 10
+
+
+        logo.style.left = x + "px"; // x + px  - moving in pixels
+      // logo.style.top = x + "px";
+        // logo.style.top = y + "px";
+
+
+
+    }
+
+
+
+    console.log(logo);
+}
+
+</script>
+  <style>
+        #logo {
+          position: relative;
+          border: dashed 3px #666;
+          padding: 20px  10px;
+        }
+  </style>
+
+
+</head>
+<body>
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<section>
+
+<h1> Animation </h1>
+
+see console (CTRL SHIFT I)
+
+<img id="logo" src="images/logo.png" />
+
+</section>
+
+<footer>
+Mini Site - Programming Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+</body>
+</html>

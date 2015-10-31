@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript Object Oriented</title>
+<link href="patterns.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+
+<script>
+
+// method = function
+// property = variable
+console.log ("review");
+
+var Class = function (a,b) {  // making it a class with capital letter
+      console.log ("hi from class");
+      console.log (a,b);
+      this.first = a;
+
+      this.add = function (){
+        console.log("running add");
+        return (a + b);
+      }
+
+}
+
+Class.prototype.multiply = function() {
+    // console.log (a,b);
+    console.log (this.first);
+    console.log ("multiply");
+}
+
+
+
+var myObject = new Class(7, 8);
+
+console.log (myObject.first);
+myObject.add();
+console.log (myObject.add());
+myObject.multiply();
+
+
+var x = myObject.add() + 10;
+console.log(x);
+
+
+Object.prototype.message = "hi IMM";
+
+var test = {};
+console.log(test.message);
+
+var num = 7;
+console.log (num.message);
+
+// public function called add
+
+
+</script>
+
+
+
+
+
+
+</head>
+<body>
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<section>
+
+<h1>Object Oriented</h1>
+
+see console (CTRL SHIFT I)
+
+</section>
+
+<footer>
+Mini Site - Pattern Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+</body>
+</html>

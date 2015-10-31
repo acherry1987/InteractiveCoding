@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript Objects</title>
+<link href="programming.css" rel="stylesheet" type="text/css" />
+
+
+<script>
+
+console.log ("hi from Objects");
+
+var myString = ""; // String literal      new string()
+
+var myArray = []; // array literal          new Array ()
+
+var myObject = {}; // object literal        new Object ()
+
+var person = {hair: "blue", eyes:"red", arms:2, fingers:10, saying:"cool beans!"}
+// hair, eyes, arms = identifiers
+
+console.log ( person ["hair"]);
+
+console.log (person.hair);
+
+console.log (person.saying);
+console.log (person ["saying"]);
+
+
+person["arms"] = 4;
+person.arms = 4;
+
+
+console.log (person.arms);
+
+
+var snacks = [
+                {type:"muffin", price:2.79, eaters: ["Dan Zen", "James Rousel"]},
+                {type:"yoghurt", price:2.00, eaters: ["chanelle Francis"]},
+                {type:"coffee", price:2.50, eaters: []}
+              ];
+
+console.log (snacks[2]["price"]); // getting price of last element in the array
+console.log ( snacks[2].price);
+
+
+snacks[2].eaters.push("Andrew Cherry");
+
+
+console.log (snacks[1].eaters);
+
+var firstSnack = snacks [0];
+console.log(firstSnack.price);
+console.log (firstSnack["type"]);
+
+for (var p in firstSnack) {
+  console.log (p);
+  console.log (firstSnack[p]);
+
+}
+
+
+
+
+
+
+
+
+
+</script>
+
+
+
+</head>
+<body>
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<section>
+
+<h1>Objects</h1>
+
+see console (CTRL SHIFT I)
+
+</section>
+
+<footer>
+Mini Site - Programming Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+</body>
+</html>

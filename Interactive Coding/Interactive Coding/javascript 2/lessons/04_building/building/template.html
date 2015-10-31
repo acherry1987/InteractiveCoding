@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Building Template</title> <!-- by Dan Zen 2014 - http://danzen.com - free to modify -->
+
+<link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+
+<!-- for Google -->
+<meta name="description" content="Describe App" />
+<meta name="keywords" content="keyword 1, keyword 2" />    
+<meta name="author" content="App Creator" />
+<meta name="copyright" content="App Company" />
+
+<!-- for Facebook -->          
+<meta property="og:title" content="App Title" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="url_to-image_for_facebook" />
+<meta property="og:url" content="url_of_app" />
+<meta property="og:description" content="Describe App - shows in share" />
+
+<!-- for Twitter -->          
+<meta name="twitter:card" content="summary" /> <!-- do not edit this line (must say "summary") -->
+<meta name="twitter:title" content="App Title" />
+<meta name="twitter:description" content="Describe App - shows on Twitter" />
+<meta name="twitter:image" content="url_to-image" />
+
+<!-- for Apple -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon-precomposed" href="url_to_icon_57x57" />
+
+<script>var zon = false; // true for comments from zim code</script>
+<script type="text/javascript" src="http://d309knd7es5f10.cloudfront.net/zim_1.4.4.js"></script>
+<style>
+	body {margin:0px; padding:0px; background-color:#000;}
+	#myCanvas {position:absolute; background-color:#FFF;}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code 
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="../../../code/createjs-2015.05.21.min.js"></script>
+
+<script>
+
+window.addEventListener('load', init);
+window.addEventListener('resize', resizeMe);
+
+var stageW = 960;
+var stageH = 640;
+var preload;
+var progress;
+
+function init() {
+
+	// for mobile - pan to the bottom, hides the location bar
+	// need to set a delay though
+	setTimeout(function() {window.scrollTo(0, 1);}, 100); 
+	
+	resizeMe();	
+	stage = new createjs.Stage("myCanvas"); 
+	stage.enableMouseOver(10); // if you need mouse rollover
+	createjs.Touch.enable(stage,true); // added for mobile	
+	
+	makeProgress();
+	
+	/*
+	// activate these at end to add images and sound
+	var contentPath = "content/";
+	var manifest = [{src:"logo.png", id:"logo"}, {src:"pic.png", id:"pic"}]; // array of objects
+	preload = new createjs.LoadQueue(false, contentPath); // use true if on the same server	
+	preload.installPlugin(createjs.Sound); // sound requires this plugin call
+	preload.on("progress", animateProgress); // this will update the progress
+	preload.on("complete", appName);	 // call the main code when ready	
+	preload.loadManifest(manifest);		
+	*/	
+	
+	appName(); // comment this out when you have preload going
+	
+}
+
+function makeProgress() {
+	
+	progress = new createjs.Container();
+	// more code in here to make bar or text or whatever, etc.
+	// we do not animate the progress here - we do that in preloadProgress()
+	stage.addChild(progress);
+	stage.update();
+	
+}
+
+function animateProgress(e) {
+	
+	// zog("progress " + e.target.progress);	
+	// this event runs quite quickly and often
+	// e.target is the preload object in this case
+	// the progress property gives a number from 0-1 representing progress
+	// in percent we would multiply by 100
+	// we would operate on the progress object we established in makeProgress() 
+
+}
+
+function appName() {
+	
+	zog("hi from appName"); // change appName to the name of your app
+	
+	// this is where ALL the rest of the code will go - and become quite big!
+	
+	// initial condition properties
+	
+	// initial build functions with events 
+	
+	// various events functions (do not forget stage.update()) 	
+	
+	stage.update();	
+}
+
+
+function resizeMe() {
+	
+	// strategy:  
+	// design for an average dimension 960 x 640
+	// all your positioning will be based on these dimensions
+	// then scale the whole canvas
+	// and pad the left/right or top/bottom as needed
+	// you can go further into flexive design http://danzen.com/flexive
+	
+	var can = zid("myCanvas");
+	
+	var w = window.innerWidth;
+	var h = window.innerHeight; 	
+	var newH; 
+	var newW;
+	
+	if (w/h >= stageW/stageH) {
+		newH = h;
+		newW = newH*stageW/stageH;	
+	} else {
+		newW = w;
+		newH = newW*stageH/stageW;
+	}
+	
+	can.style.width = newW + "px";
+	can.style.height = newH + "px"; 
+	can.style.left = ((w-newW)/2) + "px";
+	can.style.top = ((h-newH)/2) + "px";	
+}
+
+</script>
+
+
+</head>
+
+<body>
+<canvas id="myCanvas" width="960" height="640">alternate content</canvas>
+</body>
+</html>

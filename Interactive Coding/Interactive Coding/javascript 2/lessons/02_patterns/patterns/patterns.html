@@ -1,0 +1,616 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>JavaScript Pattern Basics</title>
+<link href="patterns.css" rel="stylesheet" type="text/css" />
+<script>zon=true; // set zon=true to show comments from zim scripts</script>
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+<style>
+	#logo {position:absolute; left:100px; top:100px;}
+</style>
+</head>
+<body>
+
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<img id="logo" src="images/logo.png" />
+
+<script>
+
+/*
+
+PATTERNS
+
+Just like in real life, patterns are something that repeats
+Dots that repeat are a polka dot pattern ;-)
+When we can make a template we have a pattern - as in a pattern for a dress
+In coding it is the same - coding is made up of all sorts of patterns
+A variable is a pattern for wanting to assign and change a value
+A function is a pattern - for when we want to execute a block of code
+A loop is a pattern - for when we want to repeat code consecutively
+These patterns have been assimilated by the programming language
+As such we do not refer to them as patterns but just the language
+
+Below we will look at two patterns that help us code
+1. Object Oriented Coding with Classes
+2. Module pattern to separate our code from other code
+3. Closures to keep local variables active
+
+
+1. OBJECT ORIENTED PROGRAMMING (OOP)
+
+The object oriented pattern is such an established pattern that we usually consider it the language
+It really is like a language on top of a language as it is written on top of the programming basics
+First, a little history...
+
+PROCEDURAL CODING
+
+In the early days of coding we dealt primarily with numbers and strings (text)
+To this day, in many languages (such as JavaScript) numbers and strings are called primitives ;-)
+Coding was procedural and went step by step using a goto command to repeat code
+As we started modeling (mimicking) life with code, we recognized life's patterns
+Things in life are divided up into objects with properties and methods to do things
+These patterns matched patterns in our main language with nouns, verbs, adjectives, etc.
+
+OBJECT ORIENTED CODING
+
+A main pattern - a meta pattern - is to recognize that there are patterns
+So, we made a language in which objects can be made from patterns
+The patterns in the language are called CLASSES
+A class is the template from which an object is made
+The class defines the properties and methods of an object - termed its members
+Inheritance:
+We also recognize that a base class can have sub classes and super classes
+Sub and super just mean below and above referencing a hierarchy diagram with node 0 at top
+A sub class has all the properties and methods of the base class plus its own
+An object made from a class is said to inherit the members of the super class
+Composition:
+An object can be composed of properties - a person object is composed of a head, legs, etc.
+The head, legs, etc. DO NOT inherit from the person as they are not a type of person
+Rather the person is composed of these parts - this is composition, not inheritance
+Classification lets us pick what to make and composition lets us make the object out of parts
+More on this next term when we make our own custom classes and look deeper into the theory
+
+OOP CONCLUSION
+
+Object Oriented Programming was created by very logical people to model life
+Hence it is very much a philosophy and I treat it as such (http://nodism.org)
+OOP models life through a mix of classification and composition
+Classification describes the types of things there are (this OR that)
+Composition describes the parts of things (this AND that)
+
+JAVASCRIPT
+
+JavaScript uses objects and is an object oriented language
+Everything with a value is an object - with the added clarification:
+Keywords are not objects - they are the syntax of the language
+null and undefined are not objects but rather primitives and represent absence of value
+strings, numbers and booleans (true, false) are also primitives
+but get automatically wrapped in objects called the same - so they can be treated as objects
+Object, Function, Array, Date are examples of objects as are many API calls like document
+
+We can make our own object as well and we quite often do!
+There is no class statement or keyword in JavaScript as there is in "classical" OOP languages
+This often leads people to "scoff" at JavaScript as not being a real OOP language
+In truth, it is one generation behind (it is at 2 where other oop languages are at 3)
+It may, in the future (my guess is in 2016) advance a level and include the class statement, etc.
+However, we can define a class with no problem and use all the same object oriented techniques
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript
+Indeed, JavaScript programmers have become proud of the flexibility of the language
+
+CLASSES, OBJECTS, METHODS, PROPERTIES, EVENTS
+
+A class is a template from which objects are made
+For instance, a boat object is made from a Boat class, a person object from a Person class
+The class defines the properties, methods and events of the object - its members
+A property is like an adjective that helps describe the object (color, position)
+or the property can be a noun that the object has (eyes, wheels)
+A method is like a verb and describes what the object can do or have done to it (play, jump)
+Events are a little more complex than properties or methods to define
+but it is relatively easy to describe how to use them or why they are useful
+Examples of events are user clicks or timers completing
+Certain objects will dispatch events
+Certain objects can listen for events that are dispatched
+For instance, we can make a button listen for a click event
+We "listen" for the event with code and then call a function to "handle" the event
+With coding, nothing happens unless there is an event
+
+EXAMPLE
+
+An object is an independent "instance" of the class with its own property values
+For example there could be a Ball class which defines a color property and a kick() method
+We can then make a new ball object that has red for the color property
+We can make a second ball object that has blue for the color property
+The objects have the same property but independent values for the property
+The methods are for the balls are the same but they act independently too
+We can kick the second ball but perhaps not kick the first ball
+The ball object may dispatch an event when the ball is finished rolling after a kick (not shown)
+The ball objects are separate but they are both classified as balls (made from a Ball class)
+
+Below, we use a function to create a Ball class (note the upper case class - by convention)
+We use the new keyword to create an object from the Ball class
+When we use new, the function (called the constructor) is run and an object is returned
+Also, the object is assigned to the keyword "this" used in the function
+
+*/
+
+console.log ("____1.  OBJECT ORIENTED_____");
+
+var Ball = function(c) { // this function is called the constructor when run with "new"
+	this.color = c;
+	console.log (this.color + " ball is made");
+	this.kick = function() {
+		console.log("kick " + this.color + " ball");
+	}
+}
+
+var redBall = new Ball("red");
+var blueBall = new Ball("blue");
+blueBall.kick();
+
+// note, we cannot access c outside of the function but we can access this.color
+console.log("redBall.c = " + redBall.c); // undefined
+console.log("redBall.color = " + redBall.color); // red
+console.log("-----------------"); // divider
+
+
+/*
+
+One drawback of defining the kick function inside the ball class function
+is that it would get created for every object made from the class function
+A better way is to define the kick function on the "prototype" of the class function
+A prototype is a blank object that is automatically made when you declare a function
+You can replace it with any object you want or add properties and methods to the blank object
+Objects made from the constructor are automatically given reference to the prototype object
+This is through the keyword __proto__ and deligation is automatically set up
+Deligation means that if a property is not found on the object it will look in its __proto__ object
+So if we store the kick function on the prototype object, it gets made once
+but we can use it from any object created from the class!
+There are more handy things we can do with a prototype but that is in the advanced topic
+
+*/
+
+
+var Ball = function(c) { // this function is called the constructor when used with "new"
+	this.color = c;
+	console.log (this.color + " ball is made");
+}
+
+Ball.prototype.kick = function() {
+	console.log("kick " + this.color + " ball");
+}
+
+var greenBall = new Ball("green");
+var purpleBall = new Ball("purple");
+purpleBall.kick();
+console.log("-----------------"); // divider
+
+
+// COMPLETE JAVASCRIPT CLASS EXAMPLE
+// Here is a more complete example of making objects in JavaScript:
+// it is not a real world example but rather uses the terminology as identifiers
+// The example also gets into the advanced concept of ENCAPSULATION
+// We will discuss this more at the start of next term
+// but in general, it means that we only "expose" code that we need to
+// anything that we can keep private, we do - that way, there is less chance of error
+// in a sense, our code works like a black box with only input and output
+// it does not matter how it works inside and you can't break it!
+
+
+var Class = function() {
+
+	console.log("hello from Class");
+
+	this.publicProperty =  "Hello";
+
+	var privateProperty = "Secret";
+
+	var that = this;
+
+	// can only call from within constructor
+	function privateMethod() {
+
+		// scope of this inside private method is window - (bug?)
+		console.log("privateMethod " + that.publicProperty); // good
+		// console.log("privateMethod " + publicProperty); // error
+		// console.log("privateMethod " + this.publicProperty); // undefined
+
+		console.log("privateMethod " + privateProperty); // good
+		// console.log("privateMethod " + this.privateProperty); // undefined
+		// console.log("privateMethod " + that.privateProperty); // undefined
+	}
+	// this will be the first to log after the hello from Class
+	privateMethod();
+
+	// can call from outside constructor (hence it is a public method)
+	// gets defined for every object made
+	// and hence closure gives it access to each object's private members
+	this.privilegedMethod = function() {
+		// scope of this withing privilaged method is the object (yay!)
+		console.log("privilegedMethod " + this.publicProperty);
+		console.log("privilegedMethod " + privateProperty);
+	}
+
+}
+
+// here is a public method
+// this method only gets defined once (but can be used by many objects)
+// it can even be made to have a different scope than an object from the defining class
+// this public method does not have access to the private members
+// it only has access to the public members
+// it could gain access to private members through a privilaged method
+// remember, a privilaged method is public with access to private members
+Class.prototype.publicMethod = function() {
+	console.log("publicMethod " + this.publicProperty);
+	// console.log("publicMethod " + this.privateProperty); // undefined
+}
+
+var class1 = new Class();
+console.log("publicProperty " + class1.publicProperty);
+// console.log("privateProperty " + class1.privateProperty); // undefined
+// class1.privateMethod(); // error not a function
+class1.privilegedMethod();
+class1.publicMethod();
+
+function Static() {
+	//Static.count = Static.count | 0; // can use bitwise operator on integers
+	Static.count = Static.count || 0; // initiates count only if undefined (or 0)
+	Static.count++;
+	console.log("count = " + Static.count);
+}
+Static.receiveCount = function() {return Static.count;}
+// console.log("static " + Static.receiveCount()); // undefined
+// Static.count = 7;
+new Static();
+new Static();
+new Static();
+console.log("from Static method count = " + Static.receiveCount());
+console.log("-----------------"); // divider
+
+
+/*
+
+ADVANCED JAVASCRIPT
+
+INHERITANCE
+
+In addition to ENCAPSULATION mentioned above...
+one of the most powerful features of Object Oriented code is INHERITANCE
+Inheritance means we can define properties and methods in a base class
+and pass them down to a sub class which is said to "extend" the base class.
+The sub class can then add its own properties and methods.
+And the sub class can be a base class for another sub class.
+From the viewpoint of the sub class, the base class is called a super class.
+
+In JavaScript there is no "extends" keyword as in classical OOP languages
+Instead, JavaScript uses prototype objects to pass down the properties and methods
+
+CONSTRUCTOR AND PROTOTYPE
+
+https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain
+
+All objects are created from a constructor function with the "new" keyword
+The constructor function is also the class definition function
+And as such gets a capital letter at the start by convention
+
+Object(), Array(), String(), Number(), Date(), Ball() are constructor functions
+Literals - [] and {} also run constructor functions Array() and Object()
+
+Each of these constructor functions has a prototype property
+The prototype property points to the prototype object which will be inherited.
+When we make a new object from a constructor function,
+the new object references the prototype object (using a keyword, __proto__)
+the new object will deligate to the prototype object
+This means if a property is not found on the object, it looks in the prototype
+and therefore inherits its properties
+
+*/
+
+Object.prototype.photoBomb = "oops - sorry!"; // add a property to the Object prototype
+
+var myObject = {};
+console.log("from object: " + myObject.photoBomb); // now all objects made will have this property
+
+/*
+
+The above is not a good idea as not all objects need a photoBomp property!
+All objects have an __proto__ property that points to the prototype object of its parent
+This __proto__ property is not available in all browsers so use with caution
+
+NOTE:
+
+There is an important difference between the prototype property of a function
+and the __proto__ property of an object:
+The prototype property of a function points to the prototype object that WILL BE inherited
+The __proto__ points to the prototype object that WAS inherited
+
+All the built-in objects in JavaScript inherit the prototype object of the default object
+For example, the Array inherits the prototype object of the default object
+myArray below will inherit the prototype object of the Array and of the default object
+This is called the prototype chain
+
+*/
+
+var myArray = [];
+console.log("from array: " + myArray.photoBomb);
+
+/*
+
+JavaScript will look for an own object called photoBomb and will not find it
+so it looks in the Array's prototype object and not find it
+so it will look in the Object's prototype object and find it there where we put it
+
+EXAMPLE
+
+Here we make a class and a sub class that inherits from the class
+
+*/
+
+var Bag = function() {
+	console.log("we have a Bag");
+}
+
+Bag.prototype.openBag = function() {
+	console.log("open bag");
+}
+
+var Purse = function() {
+	console.log("we have a Purse");
+}
+
+// inherit all the Bag properties
+Purse.prototype = new Bag();
+Purse.prototype.constructor = Purse; // just incase something asks
+
+// then add any methods to the purse
+Purse.prototype.zip = function() {
+	console.log("zip purse");
+}
+
+var myPurse = new Purse();
+
+myPurse.openBag();
+myPurse.zip();
+console.log("from myPurse: " +  myPurse.photoBomb); // just for the fun of it!
+
+// because the prototype property refers to an object you can do this:
+// make an object that holds a function and a property
+var o = {sayBoo:function(){console.log("BOO!");}, name:"Zorg"};
+
+var Ghost = function() {
+	console.log("I am a Ghost called " + this.name);
+}
+Ghost.prototype = o;
+
+var g1 = new Ghost();
+g1.sayBoo();
+
+// Just be a little careful as the object is shared by all Ghosts
+// really, we would want the Ghost names to be unique so do not store it on the prototype
+// rather store it in the class definition using this - this.name
+
+var g2 = new Ghost(); // hey... it has the same name!
+
+console.log("-----------------"); // divider
+
+/*
+
+GOTCHAS
+
+A prototype object is just an object, and as such, it too has a prototype object
+that being the default object's prototype object ;-)
+A constructor function is a function so it's __proto__ property is a function()
+The __proto__ property of that is the default object's prototype object
+
+FIRST WRITE-UP ATTEMPT (REFERENCE)
+
+JavaScript is a prototype based language - prototypes are used when making new objects
+A prototype is an object {} that holds default properties and methods for the object
+In the beginning, there was one object - the default object's prototype object
+The default object is defined with a constructor function (more on that below)
+The constructor function holds a reference to prototype object
+If we make a new object {}, it gains access to the default object's prototype object
+
+JavaScript makes objects like Function and Array from the default object
+In doing so, the new objects are given access to the default object's prototype object
+As well, the new objects are automatically given their own prototype object
+So now, the new objects are roughly the same as the default object to start
+JavaScript then adds new properties and methods to the prototype objects of the new objects
+For instance, the length property and the push() method of the Array
+This is termed augmenting the prototype (adding things to it)
+
+A prototype is an object that is referenced by any objects of the same type
+Every object gets a prototype object as its companion (next to or on the same level) (prototype)
+Every object was made with reference to its parent's prototype object (one level up) (__proto__)
+The exception is the default object which is at the very top and has no parent
+This establishes a prototype chain going up levels
+When JavaScript checks to see if an object has a property, it looks right up the prototype chain
+for instance, all Arrays share a prototype object, all Boat objects a Boat prototype object
+that is unless the prototype object is replaced with another object
+in which case all older objects would share the old prototype object
+any new objects would share the new prototype object
+usually we do not replace a prototype object
+but rather we change or add to the original prototype object's properties and methods
+Prototypes are how we handle inheritance in JavaScript
+We will make custom objects with inheritance in term 2
+
+It should be noted:
+The prototype keyword is only available on a function itself (not an object made from the function)
+This is because the members of the prototype object are automatically associated
+with an object made from the function.  If you need to find out what that prototype was,
+you can access it throught the object's constructor property  myObject.constructor.prototype
+
+CONSTRUCTOR
+
+A constructor is a function that runs when we make an object
+In JavaScript a class is a function and that function is the constructor
+When you define a function it gets a prototype object
+the prototype object has one property - a constructor property pointing back to the function
+When you run the function using the new keyword, and an object is made and returned
+The new object will be given a reference to the function's prototype object
+and therefore inherit all properties and methods of the function's prototype (and its prototype, etc.)
+The constructor function will be run and return the object
+A keyword this in the constructor refers to the object
+
+*/
+
+
+// 2. MODULES
+
+// Modules are sometimes called Name Space emulators
+// often when someone distributes code they wrap it in a module like below
+// this allows the distributer to set a unique identifier for all their code
+// any variables and functions are declared in this scope
+// they will not polute the global scope
+// in other words, they will not overwrite other variable or function names nor be overwritten
+// you then access any of the variables or functions using the module identifier followed by a dot .
+
+// Note: the function is immediately called (immediately invoked)
+// that is accomplised by putting two round brackets after the function body (block of code)
+
+console.log ("____2.  MODULES_____");
+
+var MODULE = function(module) {
+	module.variable = "module variable value";
+	module.test = function() {
+		console.log("hi from MODULE test()");
+	}
+	return module;
+} (MODULE || {});
+console.log(MODULE.variable);
+MODULE.test();
+
+
+// or declare the module and assign the module from within
+// here we use the object literal to assign functions and variables
+// note the object literal syntax of : and ,
+// this is how CreateJS works - the earlier formation is fine though
+
+var MODULE2 = MODULE2 || {};
+(function() {
+	var test = 2;
+	var submodule = {
+		variable: "module variable value",
+		test: function() {
+			console.log("hi from MODULE2 test() " + test);
+		}
+	}
+	MODULE2.SUBMODULE = submodule;
+} ());
+MODULE2.SUBMODULE.test();
+
+
+
+
+// note in the above case we can't use the function() operator as the start of a statement
+// because JavaScript gets mixed up with the function declaration
+// so we can wrap the function in round brackets
+// or we could place a character infront of the function like ! or a + or a -
+// commonly used is the () but contrary popular information, this does not really mean anything
+
+// if you have a module and want to augment the module - add things to it
+// then there is an issue that the values of the local variables will not be passed on
+// because each new closure gets its own local variables
+// you cannot access the local variables from the last closure from within a new closure
+// even if you have not closed that closure - the closure starts at the function operator
+// however, for the most part you just do not want outside functions changing your local variables
+// so it is usually okay to be able to read the local variables
+// here is a loosely augmented module pattern with augmented local variables
+// the variables are stored in a local object called locals
+// the variables are readable as a JSON string via the public readLocals variable
+
+var LOCALS = function(module) {
+	var locals = JSON.parse(module.readLocals || "{}");
+
+	locals.var1 = 7;
+	locals.var2 = 8;
+	module.test = function() {
+		console.log("hi from LOCALS test()");
+	}
+
+	module.readLocals = JSON.stringify(locals); // do after updating any local variables
+	return module;
+} (LOCALS || {});
+LOCALS.test();
+
+var LOCALS = function(module) {
+	var locals = JSON.parse(module.readLocals || "{}");
+
+	locals.var2 = 2;
+	locals.var3 = 3;
+	module.locals = function() {
+		console.log("hi from LOCALS locals()");
+		console.log(locals.var1 + " " + locals.var2 + " " + locals.var3);
+	}
+
+	module.readLocals = JSON.stringify(locals); // do after updating any local variables
+	return module;
+} (LOCALS || {});
+LOCALS.locals();
+
+
+
+// 3. CLOSURES
+
+// A closure is an excecuted function that holds local variables using the var keyword
+// these local variables are generally cleared once the function stops running
+// An inner function can access the local variables
+// If we assign this inner function to a variable outside the closure function
+// then the closure function will not end and it keeps the local variables alive
+// In a sense, this allows for a static type variable to be available for the inner function
+// Static is an OOP term that means it belongs to the class as opposed to objects made from the class
+// It accomplishes what a global variable can do - but it does not pollute the global scope
+
+// Closure is perhaps the wrong word as what is causing this to happen is more like a lack of closure
+// the local variables might still be used - non-closure?
+
+console.log ("____3.  CLOSURES_____");
+console.log ("press logo to see count");
+
+zss("logo").cursor = "pointer"; // just to show that logo can be clicked
+
+// long way:
+/*
+function counter() {
+	var count = 0;
+	return function() {
+		console.log(++count);
+	}
+}
+
+var doCount = counter();
+zid("logo").onclick = doCount;
+*/
+
+// medium way
+//zid("logo").onclick = counter();
+
+// short way
+zid("logo").onclick = function() {
+	var count = 0;
+	return function() {
+		console.log(++count);
+	}
+}();
+
+
+// we run the outer function using the () at the end
+// it is the return value that is assigned to the onclick
+// the return value is the inner function definition
+// the inner function makes use of the local var in the outer function
+// so that local var is kept alive even after the outer function runs
+// but note - the outer function only runs once
+// so the count var is declared as 0 only once
+// the inner function runs on every click of the logo to increase count
+
+
+</script>
+
+
+<footer>
+Mini Site - Pattern Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+
+</body>
+</html>

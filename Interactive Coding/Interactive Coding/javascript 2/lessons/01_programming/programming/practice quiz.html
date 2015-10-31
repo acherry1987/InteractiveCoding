@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript Loops</title>
+<link href="programming.css" rel="stylesheet" type="text/css" />
+
+
+<script>
+// Question 1
+var myVar;
+
+// question 2
+
+myVar = "this is a variable";
+console.log (myVar);
+
+
+// question 3
+
+if (myVar == "cheese") {
+    myVar = "real cheese";
+
+    console.log (myVar);
+}
+
+// question 4
+
+7 + "oo" + 7
+
+// question 5
+
+function guess (n) {
+  var rand = Math.floor(Math.random()* 10) + 1; // makes sure its between 1 - 10. Otherwise 0 shows up
+  console.log (rand);
+  if (n == rand) {
+  console.log ("yep");
+  } else {
+  return false;
+  }
+
+}
+guess(5);
+
+// question 6
+
+var num = [1, 3, 5, 7, 8];
+
+// question 7
+
+var total = 0;
+for (i=0; i<num.length; i++) {
+  total += num[i];
+
+}
+console.log (total);
+console.log (i);
+
+</script>
+
+
+
+</head>
+<body>
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<section>
+
+<h1>Loops</h1>
+
+see console (CTRL SHIFT I)
+
+</section>
+
+<footer>
+Mini Site - Programming Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+</body>
+</html>

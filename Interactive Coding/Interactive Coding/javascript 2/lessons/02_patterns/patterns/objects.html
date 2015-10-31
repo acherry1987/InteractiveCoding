@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript Object Oriented</title>
+<link href="patterns.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+
+<script>
+
+
+console.log ("hi from Objects");
+
+
+
+// traditional function
+function one() {
+  // console.log ("one");
+}
+one();
+
+
+// assigning an anonymous function as an expression
+var two = function () {
+  // console.log ("two");
+}
+two();
+
++function () {
+  // console.log ("three");
+}
+();
+
+
+var myStuff = {run:function(){
+  // console.log("four");} };
+
+myStuff.run();
+
+// console.log(myStuff.run());
+
+
+// using this as a Class so it gets uppercase
+var Candy = function (f) {
+  // console.log ("Candy");
+  var wrapper = true; // private property
+
+  this.flavour = f; // public property
+  // console.log (this.flavour);
+  var that = this;
+
+
+  function dissolve (){ // private function or method
+    console.log (that.flavour);
+    if (wrapper) {
+      // console.log ("unwrap before eating");
+    } else {
+        // console.log ("dissolving");
+    }
+
+
+  }
+  dissolve();
+
+  this.eat = function () { // public method
+        // console.log("eat");
+        dissolve(); // public function each calling private function
+        return wrapper;
+      }
+  // console.log (wrapper);
+
+  this.unwrap = function () {
+      wrapper = false;
+
+  }
+
+}
+
+
+var myGum = new Candy("liquorice"); // a candy object made from the Candy class
+
+//console.log(myGum.flavour);
+myGum.unwrap();
+myGum.eat();
+var myChocolate = new Candy("mint");
+
+//console.log(myChocolate.flavour);
+
+myChocolate.eat();
+myChocolate.unwrap();
+
+
+
+
+
+console.log ("review");
+
+var Class = function () {
+  // making it a class with capital letter
+      console.log("hi from class");
+}
+
+//new Class ();
+
+
+
+
+</script>
+
+
+
+
+
+
+</head>
+<body>
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<section>
+
+<h1>Object Oriented</h1>
+
+see console (CTRL SHIFT I)
+
+</section>
+
+<footer>
+Mini Site - Pattern Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+</body>
+</html>

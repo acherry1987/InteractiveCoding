@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Nanora - Sneaking Puzzle Game in Nano Land</title>
+<script type="text/javascript" src="../../../../code/zim_1.4.4.js"></script>
+<style>
+	body {margin:0px; padding:0px;}
+	#myCanvas {position:absolute;}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code 
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="../../../../code/createjs-2015.05.21.min.js"></script>
+
+<script>
+
+window.addEventListener('load', nanora);
+
+window.onresize = function() {
+	resizeMe();
+}
+
+
+
+function nanora() {
+
+	resizeMe();	
+	var stage = new createjs.Stage("myCanvas");
+	
+	// 2222222222222222222222
+	// start with the most basic element of the appliction
+	// in this case, let's start with the board and then the peices
+	// calling functions for main things like this help organize our code
+	
+	// define some initial parameters 
+	
+	var boardX = 0;
+	var boardY = 100; // leave room above for info bar
+	var boardW = 800; // leave room at right for lens of lost
+	var boardH = 480; // leave room below for nav bar
+	var rows = 4;
+	var cols = 5;
+			
+	makeBoard();
+	
+	function makeBoard() {
+		
+		// grids usually mean a loop within a loop
+		// set it up and test with a zog to make sure it is as expected
+		// you can do each column for a row or each row for a column 
+		// it is up to you
+		
+		var i; var j;
+		for (i=0; i<cols; i++) {
+			for (j=0; j<rows; j++) {
+				zog("row " + j + " col " + i);
+			}
+		}
+				
+	}	
+	
+}
+
+
+function resizeMe() {
+	
+	// strategy:  
+	// design for an average dimension 960 x 640
+	// all your positioning will be based on these dimensions
+	// then scale the whole canvas
+	// and pad the left/right or top/bottom as needed
+	// you can go further into flexive design http://danzen.com/flexive
+	
+	var can = zid("myCanvas");
+	
+	var w = window.innerWidth;
+	var h = window.innerHeight; 	
+	var newH; 
+	var newW;
+	
+	// this code handles horizontal layout:	
+	if (w/h >= 960/640) {
+		newH = h;
+		newW = newH*960/640;	
+	} else {
+		newW = w;
+		newH = newW*640/960;
+	}
+	
+	// this code would handle vertical layout
+	/*
+	if (w/h >= 640/960) {
+		newH = h;
+		newW = newH*640/960;	
+	} else {
+		newW = w;
+		newH = newW*960/640;
+	}
+	*/
+	
+	can.style.width = newW + "px";
+	can.style.height = newH + "px"; 
+	can.style.left = ((w-newW)/2) + "px";
+	can.style.top = ((h-newH)/2) + "px";
+	can.style.backgroundColor = "black";
+	
+}
+
+</script>
+
+
+</head>
+
+<body>
+
+<canvas id="myCanvas">alternate content</canvas>
+
+</body>
+</html>

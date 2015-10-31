@@ -1,0 +1,111 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Dynamic Drawing - JavaScript Interactive Basics</title>
+<link href="interactive.css" rel="stylesheet" type="text/css" />
+<script>var zon = false; // false for no comments from danzen.js</script>
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+<style>
+	#logo {position:absolute; left:100px; top:100px;}
+	#myCanvas {background-color: white;}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="createjs-2015.05.21.min.js"></script>
+
+<script>
+
+window.addEventListener('load', interactive);
+
+function interactive() {
+
+	zog("____2. DYNAMIC DRAWING____");
+
+	var stage = new createjs.Stage("myCanvas");  // createjs is name stage , class is function that has a capital letter
+	stage.enableMouseOver(10); // 10 times per second
+
+	var stageW = stage.canvas.width;
+	var stageH = stage.canvas.height;
+	console.log(stageW);
+
+
+var myCircle = new zim.Circle(40, "orange");
+stage.addChild(myCircle)
+
+myCircle.x = stageW / 2;
+myCircle.y = stageH / 2;
+
+zim.drag(myCircle, null, null, "pointer");
+
+
+var mySquare = new zim.Rectangle(50, 50, "black", null, null, 10);
+stage.addChild(mySquare)
+
+
+
+
+mySquare.on("pressmove", function() {
+	console.log ("dragging");
+	mySquare.x = stage.mouseX - differenceX
+	mySquare.y = stage.mouseY - differenceY
+
+	// if (zim.hitTestBounds(mySquare, myCircle)){
+	// 	console.log("hitting");
+	// }
+
+	if (zim.hitTestCircle(mySquare, myCircle, 8)){
+		console.log("hitting");
+		//myCircle.alpha = 0;
+		//stage.removeChild(myCircle);
+		myCircle.x = -2000;
+	}
+
+
+
+
+	stage.update();
+});
+
+var differenceX;
+var differenceY;
+
+
+mySquare.on ("mousedown", function(){
+		differenceX = stage.mouseX - mySquare.x;
+	  differenceY = stage.mouseY - mySquare.y;
+});
+
+
+stage.update();
+
+
+
+
+}
+</script>
+
+
+</head>
+<body>
+
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<canvas id="myCanvas" width="600" height="600">alternate content</canvas>
+
+
+<footer>
+Mini Site - Interactive Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Nanora - Sneaking Puzzle Game in Nano Land</title>
+<script type="text/javascript" src="../../../../code/zim_1.4.4.js"></script>
+<style>
+	body {margin:0px; padding:0px; background-color:#333;}
+	#myCanvas {position:absolute;}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code 
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="../../../../code/createjs-2015.05.21.min.js"></script>
+
+<script>
+
+window.addEventListener('load', nanora);
+window.addEventListener('resize', resizeMe);
+
+function nanora() {
+
+	resizeMe();	
+	stage = new createjs.Stage("myCanvas"); 
+	stage.enableMouseOver(10);  
+	
+	// start with the most basic element of the appliction
+	// in this case, let's start with the board and then the peices
+	// calling functions for main things like this help organize our code
+	
+	// define some initial parameters 
+	
+	var boardX = 10; // moved this over a touch
+	var boardY = 80; // leave room above for info bar
+	var boardW = 800; // leave room at right for lens of lost
+	var boardH = 480; // leave room below for nav bar
+	var squareS = 12; // spacing between squares
+	var cols = 5;
+	var rows = 4;
+	
+	// calculate the width and height of squares:
+	// might calculate this in makeBoard()
+	// but could need it for other things like positioning pieces
+	// make a little diagram if this will help
+	var squareW = (boardW - (cols-1) * squareS) / cols;
+	var squareH = (boardH - (rows-1) * squareS) / rows;
+	
+	var board;
+	var monks;
+	
+	makeBoard();
+	makeMonks();
+	
+	// I like calling functions, etc. as what the characters, etc. are in the app
+	// this way it is more fun as you are coding
+	// also, note that my next function goes above the previous function
+	// this means, the latest function is on top - that is my preference
+	// others might want it flipped around
+	// as the code gets more complex, you can rearrange things
+		
+	function makeMonks() {
+			
+		// make a container for the monks
+		
+		monks = new createjs.Container();		
+		monks.x = boardX;
+		monks.y = boardY;
+		stage.addChild(monks); 	
+		
+		var monk; var g;
+		for (var i=0; i<4; i++) {
+			monk = new createjs.Shape();
+			g = monk.graphics;
+			g.beginStroke("white").setStrokeStyle(2);
+			g.beginFill("#000");
+			g.drawRoundRect(0, 0, squareW, squareH, 20);
+			g.beginFill("#FFF"); // outer circle
+			g.drawCircle(squareW/2, squareH/2, squareH/2*.8);
+			g.beginFill("#000"); // inner circle
+			g.drawCircle(squareW/2, squareH/2, squareH/2*.5);
+			monk.x = 0;
+			monk.y = i*(squareH+squareS);
+			monks.addChild(monk);
+			
+			// since we are putting monks on these squares
+			// we need to record which square the monk is on
+			monk.currentSquare = board.getChildAt(i);
+			
+			// we also need to set the square's fullCheck property to true
+			monk.currentSquare.fullCheck = true;
+			
+			
+
+		}		
+		
+		// add moving monks 
+		// indicate which monk is moving and leave indication as selected monk
+		// this means we have to clear any previously selected monk
+				
+		monks.cursor = "pointer";
+		
+		monks.on("mousedown", function(e) {
+			
+			e.target.diffX = e.stageX - e.target.x;
+			e.target.diffY = e.stageY - e.target.y;
+			// recording where we started for snapping back if no hit
+			e.target.startX = e.target.x;  
+			e.target.startY = e.target.y;  
+			clearSelected(); // this clears any previously selected monks
+			e.target.graphics.beginFill("#fff"); // inner circle
+			e.target.graphics.drawCircle(squareW/2, squareH/2, squareH/2*.5);
+			monks.cursor = "move";
+			monks.addChild(e.target); // adds it to the top (could use setChildIndex())
+			
+			// need to mark this square as no longer full 
+			e.target.currentSquare.fullCheck = false;
+			stage.update();	
+		});
+				
+		monks.on("pressmove", function(e) {			
+			e.target.x = e.stageX-e.target.diffX;
+			e.target.y = e.stageY-e.target.diffY;			
+			stage.update();			
+		});
+		
+		monks.on("pressup", function(e) { 
+			monks.cursor = "pointer";
+			
+			// snap the object onto a square
+			// could be done with code to find the nearest position on a grid
+			// will do it by looping through hitTests
+			
+			var square;
+			var hitCheck = false;
+			var lastSquare;
+			var goodCheck
+			
+			for (var i=0; i<board.getNumChildren(); i++) {
+				square = board.getChildAt(i);
+				if (square.hitTest(e.target.x-square.x+squareW/2, e.target.y-square.y+squareH/2)) {
+					
+					// 8888888888888888888888888888
+					// make sure square only moves one square away (sigh)
+					// see how even the simplest things can get complex?
+					// could go by eligible grid locations 
+					// like if we are at B2 then we can go to A2, B1, B3, C2
+					// we could test if x is the same then y needs to be one square away
+					// if y is the same then x needs to be one square away
+					// else it is not a valid square - I like this one
+					lastSquare = e.target.currentSquare;		
+					var goodCheck = false; 
+					if (lastSquare.x == square.x) {
+						//zog("x is same");
+						if (Math.abs(lastSquare.y - square.y) <= squareH + squareS*2) { // little extra
+							goodCheck = true;
+						}
+					} else if (lastSquare.y == square.y) {
+						//zog("y is same");	
+						if (Math.abs(lastSquare.x - square.x) <= squareW + squareS*2) { // little extra
+							goodCheck = true;
+						}
+					} 
+					if (!goodCheck) {
+						break; // exits the loop
+					}
+					
+					
+					
+					// check if square is full
+					if (square.fullCheck) {
+						break; // exits the loop
+					}			
+					// now the square is full					
+					square.fullCheck = true;
+					// remember which square the monk is on
+					e.target.currentSquare = square;
+						
+					hitCheck = true;
+											
+					move(e.target, square.x, square.y, 50); // what, where, how fast ms
+				}
+			}
+			if (!hitCheck) {
+				// put square back to where it came from
+				e.target.currentSquare.fullCheck = true;
+				move(e.target, e.target.startX, e.target.startY, 200);
+			}
+			
+			stage.update();	
+		});
+				
+	}
+
+	function move(obj, x, y, s) {
+			
+		// animate to position	
+		// actually found after about 40 moves 
+		// that tweens were somehow slowing the app down
+		// I think I am stopping the ticker properly
+		// so will have to look into it	
+		
+		obj.x = x;
+		obj.y = y;
+		
+		/*					
+		// just a little wrapper function to avoid all this		
+		createjs.Tween.get(obj)
+			.to({x:x,y:y},s,createjs.Ease.Quad)
+			.call(doneAnimating);
+		createjs.Ticker.on("tick", stage);	
+		*/	
+	}
+
+	var removeCount = 0;
+	function doneAnimating() {
+		removeCount++
+		zog(removeCount);
+		createjs.Ticker.off("tick", stage);
+	}	
+
+	function clearSelected() {
+		var monk; // this will store the temporary monk as we loop		
+		for (var i=0; i<4; i++) {
+			monk = monks.getChildAt(i);
+			monk.graphics.beginFill("#000"); // inner circle
+			monk.graphics.drawCircle(squareW/2, squareH/2, squareH/2*.5);
+		}		
+	}
+	
+	function makeBoard() {
+		
+		// we could draw each board square in one shape
+		// but perhaps we will want individual shapes
+		// so that we can do hitTest, etc. on them
+		
+		// make a container for all the board squares:
+		// and position it at the boardX and boardY
+		
+		board = new createjs.Container();
+		stage.addChild(board);
+		board.x = boardX;
+		board.y = boardY;
+		
+		// grids usually mean a loop within a loop
+		// set it up and test with a zog to make sure it is as expected
+		// you can do each column for a row or each row for a column 
+		// it is up to you	
+		
+		var i; var j; var rect; var g;
+		for (i=0; i<cols; i++) {
+			for (j=0; j<rows; j++) {
+				
+				rect = new createjs.Shape();
+				g = rect.graphics;
+				g.beginStroke("white").setStrokeStyle(2);
+				g.beginFill("#ccc");
+				// here is the technique for tiling with spacing
+				g.drawRoundRect(0, 0, squareW, squareH, 20);				
+				rect.x = i*(squareW+squareS);
+				rect.y = j*(squareH+squareS);
+				rect.fullCheck = false; 
+				board.addChild(rect);				
+			}
+		}						
+	}	
+	
+	stage.update();	
+}
+
+
+function resizeMe() {
+	
+	// strategy:  
+	// design for an average dimension 960 x 640
+	// all your positioning will be based on these dimensions
+	// then scale the whole canvas
+	// and pad the left/right or top/bottom as needed
+	// you can go further into flexive design http://danzen.com/flexive
+	
+	var can = zid("myCanvas");
+	
+	var w = window.innerWidth;
+	var h = window.innerHeight; 	
+	var newH; 
+	var newW;
+	
+	// this code handles horizontal layout:	
+	if (w/h >= 960/640) {
+		newH = h;
+		newW = newH*960/640;	
+	} else {
+		newW = w;
+		newH = newW*640/960;
+	}
+	
+	// this code would handle vertical layout
+	/*
+	if (w/h >= 640/960) {
+		newH = h;
+		newW = newH*640/960;	
+	} else {
+		newW = w;
+		newH = newW*960/640;
+	}
+	*/
+	
+	can.style.width = newW + "px";
+	can.style.height = newH + "px"; 
+	can.style.left = ((w-newW)/2) + "px";
+	can.style.top = ((h-newH)/2) + "px";
+	can.style.backgroundColor = "#333";
+	
+}
+
+</script>
+
+
+</head>
+
+<body>
+
+<canvas id="myCanvas" width="960" height="640">alternate content</canvas>
+
+</body>
+</html>

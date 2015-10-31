@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript Functions</title>
+<link href="programming.css" rel="stylesheet" type="text/css" />
+
+
+<script>
+
+var number = Math.random() * 10;
+
+
+console.log ("hi from functions")
+
+sayWords("Jon", "yoyo!"); // this works because of hoisting
+
+// declaring or defining or making function
+
+function sayWords(avatar, words ) {
+
+  console.log (avatar + " says: " + words);
+}
+
+sayWords("Andrew", "this is fun!");
+
+function door ( num ){
+   console.log ("Your door number is:" + num);
+
+   console.log(number);
+
+      if ( num < 5) {
+            sayWords("Gandalf","you shall not pass!");
+           //console.log ("door is locked!");
+      } else {
+            sayWords ("Gandalf", "you shall pass");
+           //console.log ("door is open!");
+    }
+ }
+
+door(number);
+
+
+var conclude = function () {
+    console.log ("bye - almost")
+
+}
+
+conclude();
+
+
+</script>
+
+
+
+</head>
+<body>
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<section>
+
+<h1>Functions</h1>
+
+see console (CTRL SHIFT I)
+
+</section>
+
+<footer>
+Mini Site - Programming Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+</body>
+</html>

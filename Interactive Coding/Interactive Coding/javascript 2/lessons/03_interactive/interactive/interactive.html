@@ -1,0 +1,642 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>JavaScript Interactive Basics</title>
+<link href="interactive.css" rel="stylesheet" type="text/css" />
+<script>var zon = true; // false for no comments from danzen.js</script>
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+<style>
+	#logo {position:absolute; left:100px; top:100px;}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="../../../code/createjs-2015.05.21.min.js"></script>
+
+<script>
+
+/*
+
+INTERACTIVE BASICS
+
+1. OBJECTS AND EVENTS
+2. DYNAMIC DRAWING
+3. DRAG, DROP AND HIT
+4. SOUND
+5. TEXT
+6. TWEEN ANIMATION
+7. MASKS
+8. PRELOADING
+
+
+INTERACTIVITY
+
+This module focuses on the interaction rather than the objects or logic of the language.
+
+We will introduce a library of JavaScript modules called CreateJS
+by Grant Skinner - former Flash Coder - http://createjs.com
+The library helps us create and access interactive objects and provides a robust interaction model
+Advanced interactivity like drag and drop, hit tests, etc. that is cross browser and mobile
+has been difficult to acheive with current HTML 5 api's.
+CreateJS makes this possible and saves us thousands of lines of code
+The library is fashioned after Flash ActionScript and the available methods in Flash
+
+With CreateJS as in Flash, there is the concept of the stage
+The stage is what the user sees and it is based on a canvas tag - see above.
+createjs is the module name on the imported createjs files
+this allows us to access all the classes, etc. in createjs using the dot syntax
+
+Usually, we listen for a load event on the window to make sure all the tags exist
+This load event calls a function with all our JavaScript
+
+*/
+
+window.addEventListener('load', interactive);
+
+function interactive() {
+
+	var stage = new createjs.Stage("myCanvas");
+	var stageH = 300;
+	var stageW = 500;
+
+	// if you need mouseover events or cursor property
+	// the number for the parameter is how many times a second it checks
+	stage.enableMouseOver(10);
+
+
+
+	// TABLE OF CONTENTS
+
+	objectsAndEvents();
+	//dynamicDrawing();
+	//dragDropAndHit();
+	//sound();
+	//text();
+	//tweenAnimation();
+	//masks();
+	//preloading();
+
+	/*
+
+	1. OBJECTS AND EVENTS
+
+	EASELJS - the quote below is from the CreateJS site:
+
+	"The EaselJS Javascript library provides a retained graphics mode for canvas (an HTML 5 tag)
+	including a full hierarchical display list, a core interaction model, and helper classes
+	to make working with 2D graphics in Canvas much easier. EaselJS provides straight forward solutions
+	for working with rich graphics and interactivity with HTML5 Canvas..."
+
+	*/
+
+	// here we create a new bitmap - a picture
+	// http://www.createjs.com/Docs/EaselJS/classes/Bitmap.html
+	// we can also create a Sprite (container) and a Shape (circle, rectangle, etc.)
+
+	function objectsAndEvents() {
+		zog("____1. OBJECTS AND EVENTS____");
+
+		var logo = new createjs.Bitmap("images/logo.png");
+		logo.cursor = "pointer"; // adjusts the cursor as you roll over
+
+		// we are going to rotate the object so we should set its registration point to center
+		// getBounds() gets a rectangle the size of the object - if the object is loaded
+		// when loading a pic from the Web - we should preload first (see last topic on page)
+		// so I will just hard code the size for now - when we see preloading we can fix
+		// var logoBounds = logo.getBounds();
+		// logo.regX = logoBounds.width / 2;
+		// logo.regY = logoBounds.height / 2;
+
+		logo.regX = 169/2; // half the width
+		logo.regY = 136/2;  // half the height
+
+		logo.x = 130; // note for position we can use x and y now from top left corner 0,0
+		logo.y = 130;
+		logo.alpha = .8; // alpha is the transparency from 0-1
+		stage.addChild(logo); // this adds the object to the stage
+		stage.update(); // this updates the stage so you can see changes
+
+		// note, we should really preload the image to make sure it loads before we update the stage
+		// we see preloading at the end of this module (it is too complicated looking to start with)
+		// this means, the first time we run this, it may not show the image
+		// for now, we will add a timer so it shows up first time
+		setTimeout(function(){stage.update();}, 200);
+
+
+		// EVENTS
+
+		// here we add event listeners to the logo which run a function when we interact
+		// note the strings used to define events are from HTML and just get lower case treatment
+
+		// logo.addEventListener("click", rotateLogo); // long way
+		logo.on("click", rotateLogo); // short way - but only with CreateJS objects
+		logo.on("mouseover", rollOn);
+
+		function rotateLogo(e) {
+			zog("we are rotating the logo");
+			// zog(e); // e is the event object
+			// zog(e.target); // e.target will be what was clicked on
+			// if we only wanted one rotation we could activate below:
+			// logo.off("click", rotateLogo);
+			// logo.cursor = null; // remove the pointer on rollover
+
+			logo.rotation += 90; // rotation in degrees
+			stage.update(); // don't forget to update the stage (I always forget)
+		}
+
+		function rollOn() {
+			logo.on("mouseout", rollOff);
+			logo.alpha = 1;
+			stage.update();
+		}
+
+		function rollOff() {
+			// logo.removeEventListener("mouseout", rollOff); // long way to remove
+			logo.off("mouseout", rollOff); // short way to remove!
+			logo.alpha = .8;
+			stage.update();
+		}
+
+
+	}
+
+
+	// 2. DYNAMIC DRAWING
+	// a shape is a vector - you draw into the graphics property of the shape
+	// http://www.createjs.com/Docs/EaselJS/classes/Shape.html
+	// http://www.createjs.com/Docs/EaselJS/classes/Graphics.html
+
+	function dynamicDrawing() {
+		zog("____2. DYNAMIC DRAWING____");
+
+		var circle = new createjs.Shape();
+		circle.graphics.beginFill("red");
+		circle.graphics.drawCircle(0, 0, 50);
+		// or chain the commands:
+		// circle.graphics.beginFill("red").drawCircle(0, 0, 50);
+		circle.x = 100;
+		circle.y = 100;
+		stage.addChild(circle);
+
+		var rectangle = new createjs.Shape();
+		var g = rectangle.graphics;
+		g.beginStroke("#666").setStrokeStyle(5).beginFill("#ccc");
+		g.drawRect(0, 0, 80, 80);
+		rectangle.x = 100;
+		rectangle.y = 100;
+		stage.addChild(rectangle);
+
+		var abstract = new createjs.Shape();
+		var a = abstract.graphics;
+		// use short cut methods f=beginFill lt=lineTo bt=bezierTo
+		a.f("black").mt(200,100).lt(300,100).lt(200,180).lt(300,180);
+		a.f("pink").lt(200,100).bt(220,50,280,50,300,100);
+		// bezierTo automatically starts the line from where ever we are
+		// then takes three points - the first control point, the second control point
+		// and the final line point - bezier curves have those little handles
+		stage.addChild(abstract);
+		stage.update();
+
+	}
+
+	// 3. DRAG, DROP AND HIT
+	// here we pick up an object and drag it around and then drop it
+	// we will make a circle to drag
+	// we will make a square and test to see if the circle hits the square
+
+	function dragDropAndHit() {
+
+		zog("____3. DRAG, DROP AND HIT____");
+
+		createjs.Touch.enable(stage,true);
+
+		var circle = new createjs.Shape();
+		circle.cursor = "pointer";
+		circle.r = 50;
+		circle.graphics.beginFill("red").drawCircle(0, 0, circle.r);
+		circle.x = circle.y = 100;
+		circle.setBounds(-circle.r, -circle.r, circle.r*2, circle.r*2);
+		stage.addChild(circle);
+
+		var square = new createjs.Shape();
+		square.width = square.height = 50;
+		square.graphics.beginFill("lightblue").drawRect(0, 0, square.width, square.height);
+		square.x = square.y = 200;
+		square.setBounds(0, 0, square.width, square.height);
+		stage.addChildAt(square, 0); // note we add the square under the circle
+
+		stage.update();
+
+		// we could code our own version of drag, drop and hit tests
+		// but it gets complicated if the objects are in nested containers
+		// and more complicated if the containers are rotated
+		// so we can use the zimcreate.js versions
+
+		var hitCheck = false; // used to keep track if circle and square are hitting
+
+		zim.drag(circle);
+
+		// we can also specify a rectangle for drag boundaries
+		// zim.drag(circle, new createjs.Rectangle(100,100,200,100));
+
+		// we can specify the cursors:
+		// zim.drag(circle, null, "pointer", "grab");
+
+		// there are a variety of hitTest types available in zimcreate.js
+		// as well as the basic hitTest in createjs for a shape hitting a point
+		// we put these in a pressmove event:
+		// you can uncomment the hit tests one at a time to see the effects of each
+
+		circle.on("pressmove", function(e) {
+
+			// let us start by checking if the circle shape hits the registration of the square
+			// coming from Flash and for most of us intuitively, this would seem simple
+			// if (circle.hitTest(square.x, square.y)) {
+
+			// both the objects are in the same frame of reference - directly on the stage
+			// but unfortunately, it does not work
+			// how createjs works is a little tricky - it involves an exercise in relativity
+			// for a "hit", createjs checks if the shape color under the point is not transparent
+			// the point that is being checked is inside the shape - not on the stage
+			// from inside the shape, it never looks like the shape is moving
+			// it would be like if you were in a spaceship - the ship itself seems still
+			// it is the outside that is moving past the ship
+			// if we think of ourselves as being inside the circle while it is being dragged towards the square,
+			// it looks like the square is moving towards us or towards the circle
+			// so we need to transform the position of the square into the circle's frame of reference
+			// in this simple case where they are both on the stage,
+			// we can make it like the circle is not moving by subtracting the movement of the circle
+			// if (circle.hitTest(square.x-circle.x, square.y-circle.y)) {
+
+			// this works!  However there are times when the objects are nested inside other objects
+			// to handle this, createjs provides three methods:
+
+			// 1. to transform a global frame of reference to an object's frame of reference:
+			// var point = obj.globalToLocal(x,y); // x and y are points on the stage (global)
+			// point.x and point.y are the equivalent points inside the object
+
+			// 2. to transform a point from the object's frame of reference to a global frame of reference
+			// var point = obj.localToGlobal(x,y); // x and y are in the object
+			// point.x and point.y then are the equivalent points in the global frame of reference (the stage)
+
+			// 3. to transform a point from one object's frame of re fence to another object's frame of reference
+			// var point = obj.localToLocal(x,y, obj2); // x and y are in obj
+			// point.x and point.y are the equivalent point inside obj2
+			// this would be just like going obj.localToGlobal() and then obj2.globalToLocal()
+
+			// one thing to watch out for is sometimes you want to use object's parent's frame of reference
+			// for instance, a better solution to see if we are hitting the registration point is like so
+			// here, we want to take the square's position inside it's container
+			// if it has no container, this will be the stage
+			// we want to take that position and translate it to the circle to take the hitTest
+			// this works - and will work even if the circle and square are in translated, rotated and scaled containers
+
+			//var point = square.parent.localToLocal(square.x, square.y, circle);
+			//if (circle.hitTest(point.x, point.y)) {
+
+			// HIT TEST REG
+			// rather than remembering how to do this each time we can use the following zimcreate.js function
+			// the first parameter is the shape and the second the shape with the registration point
+			// if (zim.hitTestReg(circle, square)) {
+
+			// HIT TEST POINT
+			// now, if you want to find out if the shape is hitting a point on the stage (global reference frame)
+			// you would need to transform that point into the reference frame of the object with globalToLocal
+			// or you can use the zimcreate.js function:
+			// if (zim.hitTestPoint(circle, 20, 20)) {
+
+			// HIT TEST RECT
+			// a technique to see if a shape hits another shape is to test multiple points
+			// commonly, we would test some shape against a rectangle
+			// to do this we test points on the rectangle - for instance, its corners
+			// sometimes that is not enough and you need edges - say the middle points
+			// if your shape is small, you may need more points on the edges
+			// for this you can use the zimcreate.js function below and pass any number of edge points
+			// the first parameter is the shape and the second is the shape whose bounding rectangle is used
+			// so you need to setBounds() on the second object
+			// the third parameter is how many edge points (default is 0 for only corners)
+			// a value of 1 would add one point in the middle of each edge of the rectangle, etc.
+			// if (zim.hitTestRect(circle, square, 1)) {
+
+			// HIT TEST CIRCLE
+			// another common shape is a circle - so the zimcreate.js function below handles this
+			// the first parameter is the shape and the second is the object whose bounds are used
+			// so you need to setBounds() on the second object
+			// the third parameter is how many points around the circle (default is 8)
+			// the circle is made around the registration point and uses an average of the width and height
+			// presumably, the second object is a circle - but it does not matter
+			// a squashed circle works too - so obj2.scaleY = 2 would be an oval and it will work
+			// if (zim.hitTestCircle(circle, square, 10)) {
+
+			// HIT TEST BOUNDS
+			// a common hitTest in Flash is hitTestObject which tests the bounds of the objects
+			// the bounds are a rectangle around the object
+			// if the object is rotated, new bounds that stay horizontal and vertical are used
+			// the new bounds surround the object's old rotated bounds
+			// this is the fastest hitTest for two rectangular or close to rectangular objects
+			// if you pass in a shape as a third parameter, the function draws the bounds into the shape
+			if (zim.hitTestBounds(circle, square)) {
+
+				if (!hitCheck) { // if it was not hitting, now it is...
+					square.graphics.beginFill("blue").drawRect(0, 0, 50, 50);
+					hitCheck = true;
+					stage.update();
+				}
+			} else {
+				if (hitCheck) { // if it was hitting, now it is not...
+					square.graphics.beginFill("lightblue").drawRect(0, 0, 50, 50);
+					hitCheck = false;
+					stage.update();
+				}
+			}
+
+		});
+
+	}
+
+	// 4. SOUND
+	// Sound has traditionally been difficult in browsers - there have been multiple plugins
+	// SoundJS wraps these and makes sure sound can be played
+	// http://www.createjs.com/#!/SoundJS
+	// http://community.createjs.com/discussions/soundjs/1804-firefox-synchronous-xmlhttprequest
+
+	function sound() {
+
+		zog("____4. SOUND____");
+
+		var manifest = [
+			{id:"up", src:"powerup.mp3"},
+			{id:"down", src:"powerdown.mp3"}
+		];
+		var preload = new createjs.LoadQueue(false, audioPath); // use true if on the same server
+		preload.installPlugin(createjs.Sound);
+		preload.on("complete", soundLoaded);	 // call the main code when ready
+		preload.loadManifest(manifest);
+
+	 	function soundLoaded() {
+
+			var circle = new createjs.Shape();
+			circle.cursor = "pointer";
+			circle.graphics.beginFill("black").drawCircle(0, 0, 50);
+			circle.x = circle.y = 100;
+			stage.addChild(circle);
+
+			var square = new createjs.Shape();
+			square.width = square.height = 50;
+			square.graphics.beginFill("lightblue").drawRect(0, 0, square.width, square.height);
+			square.x = square.y = 200;
+			square.setBounds(0, 0, square.width, square.height);
+			stage.addChildAt(square, 0); // note we add the square under the circle
+
+			stage.update();
+
+			zim.drag(circle);
+
+			var hitCheck = false; // used to keep track if circle and square are hitting
+
+			circle.on("pressmove", function(e) {
+				if (zim.hitTestRect(circle, square, 1)) {
+
+					if (!hitCheck) { // if it was not hitting, now it is...
+						square.graphics.beginFill("blue").drawRect(0, 0, 50, 50);
+						hitCheck = true;
+						stage.update();
+						createjs.Sound.play("up");
+					}
+				} else {
+					if (hitCheck) { // if it was hitting, now it is not...
+						square.graphics.beginFill("lightblue").drawRect(0, 0, 50, 50);
+						hitCheck = false;
+						stage.update();
+						createjs.Sound.play("down");
+					}
+				}
+			});
+		}
+
+	}
+
+	// 5. TEXT
+	// http://www.createjs.com/Docs/EaselJS/classes/Text.html
+	// The Text class is for dynamically displayed text - not input text
+	// For input text we can use the CreateJS DOMElement class
+	// http://www.createjs.com/Docs/EaselJS/classes/DOMElement.html
+
+	function text() {
+
+		zog("____5. TEXT____");
+
+		var myText = new createjs.Text("Hello World", "26px Verdana", "green");
+
+		myText.textAlign = "center"; // is available as well for buttons, etc.
+		myText.textBaseline = "alphabetic"; // for consistent vertical alignment
+
+		myText.text = "Hello Pumpkin";
+		myText.x = 100;
+		myText.y = 150;
+		myText.rotation = -25;
+		stage.addChild(myText);
+
+		// could have added this tag to the HTML and hidden it until now
+		// but here is how we can create an element in the DOM
+		var userField = document.createElement("input");
+		userField.setAttribute("id", "userinput");
+		userField.setAttribute("type", "text");
+		userField.setAttribute("value", "type here");
+		with (userField.style) {
+			padding = "5px";
+			fontSize = "16px";
+			color = "#666";
+			backgroundColor = "#ddd";
+			fontFamily = "verdana";
+		}
+		document.body.insertBefore(userField, zid("myCanvas"));
+
+		// here we are back in CreateJS to put the HTML element above the stage
+		// it is not drawn in the canvas like our Text object but rather put above
+		var input = new createjs.DOMElement("userinput");
+		// to apply an event to the HTML element we must specify htmlElement as well...
+		input.htmlElement.oninput = function() {
+			myText.text = "Hello " + userField.value;
+			stage.update();
+		}
+		input.x = 100;
+		input.y = 200;
+		stage.addChild(input);
+		stage.update();
+
+	}
+
+	// 6. TWEEN ANIMATION
+	// http://www.createjs.com/#!/TweenJS
+	// http://andysaia.com/blog/tweenjs/
+	// There are several popular libraries for tween animation (tween == inbetween)
+	// GreenSock has one that has been popular for years in Flash
+	// CreateJS has one too called TweenJS
+	// These are incredibly powerful to make things move with easing using various equations
+	// Generally, we do not want to make things move with linear motion - no acceleration
+	// Rather, we want to ease in and ease out - this is more pleasing to the eye
+	// and similar to real life experience where we have acceleration and deceleration
+
+	function tweenAnimation() {
+
+		zog("____6. TWEEN ANIMATION____");
+
+		var circle = new createjs.Shape();
+		circle.graphics.beginFill("#333").drawCircle(0, 0, 30);
+		circle.x = circle.y = 100;
+		stage.addChild(circle);
+		stage.update();
+
+		// we access the object we want to tween using Tween.get
+		// then we say to and pass an object with any properties we want to tween
+		// then the time in millisections and the type of ease we want
+		// you can call a function when the tween is done
+		// note we can indent the various chained commands for readability
+
+		createjs.Tween.get(circle)
+			.to({x:400,alpha:0},1000,createjs.Ease.backIn)
+			.call(doneAnimating);
+
+		// for the tween to be seen we need to update the stage on each "tick"
+		// http://www.createjs.com/Docs/EaselJS/classes/Ticker.html
+		// a ticker can be used as a timer too - we will see that later in the build module
+		var listener = createjs.Ticker.on("tick", stage);
+		// here we stop updating the stage when the animation is done
+		// I would have liked it if the Tween automatically updated the stage and stopped when done
+		// it would have saved some steps for us...
+		function doneAnimating() {
+			createjs.Ticker.off("tick", listener);
+		}
+
+		// looping animation
+		/*
+		createjs.Tween.get(circle,{loop:true})
+			.to({x:400},1000,createjs.Ease.quadInOut)
+			.to({x:100},1000,createjs.Ease.quadInOut);
+		*/
+
+		// delay and chaining movement
+		/*
+		createjs.Tween.get(circle)
+			.to({x:400},1000,createjs.Ease.quadInOut)
+			.wait(500)
+			.to({y:200},500,createjs.Ease.quadInOut);
+		*/
+
+	}
+
+	// 7. MASKS
+	// a mask is a shape through which you can see the content
+	// imagine it is like a hole in a wall - or a spotlight in the dark
+
+	function masks() {
+
+		zog("____7. MASKS____");
+
+		var circle = new createjs.Shape();
+		circle.cursor = "pointer";
+		circle.radius = 50;
+		circle.graphics.beginFill("black").drawCircle(0, 0, circle.radius);
+		circle.x = circle.y = 100;
+		stage.addChild(circle);
+
+		var bounds = new createjs.Rectangle(
+			circle.radius, // the registration point is the middle so start in a radius
+			circle.radius, // and start down a radius
+			300-circle.radius*2, // hardcoded picture width (should preload and calculate)
+			stageH-circle.radius*2 // note this is the width and height so we need to take off 2 radii
+		);
+		zim.drag(circle, bounds, "pointer", "none");
+
+		// should preload this so it may not show up for a bit...
+		var image = new createjs.Bitmap("https://farm1.staticflickr.com/37/109390270_a6049b4e97_o.jpg");
+		image.scaleX = image.scaleY = .5;
+		image.mask = circle;
+
+		stage.addChild(image);
+		stage.update();
+
+	}
+
+	// 8. PRELOADING
+	// http://www.createjs.com/#!/PreloadJS
+	// sometimes we want to make sure that images or sounds are loaded before we use them
+	// for sound preloading, see the preloadJS documentation for an example (need a plugin call)
+	// if images are big or many, you can use preloading to make a progress bar
+	// a more complex example can be found in the http://danzen.com museum
+	// we may look at some examples in the Build Module
+
+	function preloading() {
+
+		zog("____8. PRELOADING____");
+
+		// beware: image will not trigger fileload if local image on local computer
+		var imagePath = "http://imm.sheridanc.on.ca/2015/ic/lesson11/interactive/images/";
+		var manifest = [{src:"logo.png", id:"logo"}]; // array of objects
+		var preload = new createjs.LoadQueue(false, imagePath); // use true if on the same server
+		preload.on("fileload", imageLoaded);
+		preload.on("complete", imagesComplete);
+		preload.loadManifest(manifest);
+
+		var logo;
+
+		function imageLoaded(e) {
+			zog("image loaded");
+			// e.item refers to manifest object of the current loaded image
+			// e.result refers to the image object
+			if (e.item.id == "logo") {
+				logo = new createjs.Bitmap(e.result);
+				var logoBounds = logo.getBounds();
+				// zog(logoBounds.width);
+				logo.regX = logoBounds.width / 2;
+				logo.regY = logoBounds.height / 2;
+				logo.x = 130;
+				logo.y = 130;
+			}
+		}
+
+		function imagesComplete(e) {
+			zog("images complete");
+			stage.addChild(logo);
+			stage.update();
+
+			// you can also at any time get the results of the preload
+			// so often, I make Bitmaps in the complete event (here)
+			// or as I need them in the rest of the code
+			// (would then need to make the preload variable available to other functions)
+			// rather than in the fileloaded event above
+			// there will be more examples of preloading in the Build Module
+			zog(preload.getResult("logo"));
+
+		}
+
+	}
+
+} // end of outer function
+
+</script>
+
+
+</head>
+<body>
+
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<canvas id="myCanvas" width="500" height="300">alternate content</canvas>
+
+<footer>
+Mini Site - Interactive Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1751 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Nanora - Sneaking Puzzle Game in Nano Land</title>
+
+<link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+
+<!-- for Google -->
+<meta name="description" content="Nanora - Sneak Game Puzzle to get Meta Monks past the Nano Bots to the Lens of the Lost - with original Moog backing" />
+<meta name="keywords" content="Nanora, nano, nanobots, game, puzzle, sneak, artificial intelligence" />    
+<meta name="author" content="Dan Zen" />
+<meta name="copyright" content="Dan Zen" />
+
+<!-- for Facebook -->          
+<meta property="og:title" content="Nanora - Sneaking Puzzle Game in Nano Land" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="http://danzen.com/nanora/og.jpg" />
+<meta property="og:url" content="http://danzen.com/nanora/index.html" />
+<meta property="og:description" content="Nanora - Sneak Game Puzzle to get Meta Monks past the Nano Bots to the Lens of the Lost - with original Moog backing. You try!" />
+
+<!-- for Twitter -->          
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Nanora - Sneaking Puzzle Game in Nano Land" />
+<meta name="twitter:description" content="Nanora - Sneak Game Puzzle to get Meta Monks past the Nano Bots to the Lens of the Lost - with original Moog backing. You try!" />
+<meta name="twitter:image" content="http://danzen.com/nanora/og.jpg" />
+
+<!-- for Apple -->
+<meta name="viewport" content="width=device-width; target-densitydpi=device-dpi; initial-scale=1; maximum-scale=1; minimal-ui" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link rel="apple-touch-icon-precomposed" href="http://danzen.com/nanora/apple-icon.png" />
+
+
+<script type="text/javascript" src="../../../../code/zim_1.4.4.js"></script>
+<style>
+	body {margin:0px; padding:0px; background-color:#333;}
+	#myCanvas {position:absolute;}
+	@font-face { 
+		font-family: hoverage;
+		src: url(hoverage.ttf);
+	}
+	@font-face {
+		font-family: hoveragevintage;
+		src: url(hoveragevintage.ttf);
+	}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code 
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="../../../../code/createjs-2015.05.21.min.js"></script>
+
+<script>
+
+window.addEventListener('load', init);
+window.addEventListener('resize', resizeMe);
+
+var gameW = 960;
+var gameH = 640;
+var preload;
+var progress;
+
+function init() {
+
+	// for mobile - pan to the bottom, hides the location bar
+	// need to set a delay though
+	setTimeout(function() {window.scrollTo(0, 1);}, 100); 
+	
+	resizeMe();	
+	stage = new createjs.Stage("myCanvas"); 
+	stage.enableMouseOver(10); 
+	createjs.Touch.enable(stage,true); // added for mobile
+	
+	// time to bring in the pictures and sound with preloadjs
+	// we insert the preload at the start of all our code
+	// we then wait for the loading to complete and call all our nanora function
+	
+	// could just type out all the content in the form:
+	// {src:"some.mp3", id:"someid"}
+	// but we can factor the data to remove duplication
+	// now, the nano prefix only happens once as does .mp3, etc.
+	var prefix = "nanora";
+	var sounds = ["across", "back", "backing1", "backing2", "cycle", 
+				  "logo", "new", "quiet", "win", "wrong", "move"];
+	var manifest = [];
+	for (var i=0; i<sounds.length; i++) {
+		manifest.push({src:prefix+sounds[i]+".mp3", id:sounds[i]});
+	}
+	
+	// not going to use the pictures after all...
+	/*
+	for (i=1; i<=4; i++) {
+		manifest.push({src:"bot"+i+".png", id:"bot"+i});
+		manifest.push({src:"bot"+i+"h.png", id:"bot"+i+"h"});
+	}
+	*/
+	
+	// zog(manifest);
+	
+	var contentPath = "http://imm.sheridanc.on.ca/2015/ic/lesson18/building/nanora/content/";
+		
+	preload = new createjs.LoadQueue(false, contentPath); // use true if on the same server	
+	preload.installPlugin(createjs.Sound); // sound requires this plugin call
+	preload.on("progress", preloadProgress); // this will handle the preloader (rings in this case)
+	preload.on("complete", nanora);	 // call all the code we were doing before
+	
+	// move the makeProgress function here with some minor changes
+	
+	// make and test the progress screen before actually loading graphics and sounds
+	// make the progress screen relevant to the application
+	// here we are in nano land so use the screen to help people experience this
+	
+	// so we will have concentric rings 
+	// as the files load the rings will disappear from the outside to the inside
+	
+	
+	progress = new createjs.Container();
+	stage.addChild(progress);		
+	var backing = new createjs.Shape();
+	var g = backing.graphics;		
+	g.beginFill("#333");
+	g.drawRect(0, 0, gameW, gameH);	
+	progress.addChild(backing);
+	
+	// draw rings
+	
+	var rings = new createjs.Container();
+	rings.x = gameW/2;
+	rings.y = gameH/2;
+	progress.addChild(rings);
+	progress.rings = rings;
+	
+	var ring;	
+	var ringNum = 5;
+	
+	for (var i=ringNum; i>0; i--) {
+		ring = new createjs.Shape();
+		g = ring.graphics;		
+		g.beginFill("#ccc");
+		// no dragging, hitting, etc. so do not need x and y
+		g.drawCircle(0, 0, (gameH/2-10)/ringNum*i);
+		g.beginFill("#333");
+		g.drawCircle(0, 0, (gameH/2-10)/ringNum*i-(gameH/2-10)/ringNum/2);	
+		ring.alpha = 1;		
+		rings.addChild(ring);
+	}
+	
+	preload.ringNum = ringNum;
+	
+	preload.loadManifest(manifest);	
+	
+	stage.update();
+	
+	
+}
+
+function preloadProgress(e) {
+	
+	// zog("progress " + e.target.progress);
+	
+	// this event runs quite quickly and often
+	// e.target is the preload object in this case
+	// the progress property gives a number from 0-1 representing progress
+	// in percent we would multiply by 100
+	
+	// this specific situation is a little tricky 
+	// because the progress is counting up
+	// and the number of rings are counting down
+	// so it is an inverse relationship
+	// the first step is to make it a direct relationship
+	// so we use 1-progress
+	// now as progress counts up, 1-progress counts down
+	// the rest is a proportional calculation
+	// by multiplying the progress out of 1 by the total number
+	// we get how many rings should be showing at this load time
+	// if the number of rings is greater than this
+	// we want to remove a ring
+	
+	// this format is quite handy for a custom preloader
+	// because if you show a number of things
+	// and start taking them away, then people see how many are left
+	// and this gives them an indication of progress
+	
+	// now you can make a preloader that relates to your content
+	// doing a halloween app - but 10 pumpkins on the stage
+	// doing as bartending app - bottles of wine, etc.
+	// although a bartending app might be better with
+	// the glass level going down - or filling up
+	
+	// zog(e.target.progress);
+
+	var numChildren = progress.rings.getNumChildren();	
+	if (numChildren > 0) {		
+		if (numChildren > (1 - e.target.progress) *  e.target.ringNum) {		
+			
+			progress.rings.removeChildAt(0);
+			stage.update();
+		}
+	}
+	
+}
+
+function nanora() {
+	
+	
+	// start with the most basic element of the appliction
+	// in this case, let's start with the board and then the peices
+	// calling functions for main things like this help organize our code
+	
+	// define some initial parameters 
+
+	var boardX = 10; // moved this over a touch
+	var boardY = 80; // leave room above for info bar
+	var boardW = 800; // leave room at right for lens of lost
+	var boardH = 480; // leave room below for nav bar
+	var squareS = 12; // spacing between squares
+	var cols = 5;
+	var rows = 4;
+	var buttonHeight = 58;
+	var monksAcrossCount = 0; 
+	var botData = []; 
+	
+	// was going to let the user set these
+	// but that can cause disparancy in scores 
+	// also, an increasing speed can be good for levels
+	// or even in the same level to create suspense
+	// so we will try a stepped increasing speed
+	// start at 5 and go to 3 after 5 cycles - speed up sound too
+	// then perhaps 2 for the final monk
+	// could increase speed for each monk across 
+	// but in many cases, most of the monks cross at the same time
+	// so this would not be very effective
+	var cycleDuration = 5; // seconds between each cycle	
+	
+	// at this point the main game is done
+	// I have tried it out a few times and here are some observations
+	// instead of three different times on automatic,
+	// I think it would neat to speed up the game as you play it
+	// so 10 seconds pause for the first ten moves
+	// then 5 seconds and one second less for each monk you clear
+	// or something like that - a little tweeking later on of course
+	
+	// another thing is that it would be neat to play the same board over again
+	// so the reset message should be two buttons 
+	// one to play the last and one to play the next
+	// in the end, perhaps high scored per pattern could be recorded, etc.
+	// maybe patterns could be shared
+	// a future game could have larger grids, etc.
+	
+	// the pressing of the cycle text to go to the next cycle manually is obtuse
+	// it is great when you know what to do - so it requires some thought
+	// I think using the Lens area as a message box works fairly well
+	// it is vertical which is a touch awkward but also unique
+	// and on mobile, less of an issue
+	
+	// We still need to bring in graphics and sound
+	// and the logo and intro
+	// would like to import text so will look into that
+	
+	// instead of a settings button we should put the toggle right on the bottom
+	// so lets finish off the auto/manual toggle and the replay / new buttons
+	// perhaps put these on the bottom too - yes
+	// also work in a message on manual to press the cycle button
+	// perhaps making the toggle button the same color will help people see it as a button
+	
+	// ---------------		
+	
+	// calculate the width and height of squares:
+	// might calculate this in makeBoard()
+	// but could need it for other things like positioning pieces
+	// make a little diagram if this will help
+	var squareW = (boardW - (cols-1) * squareS) / cols;
+	var squareH = (boardH - (rows-1) * squareS) / rows;
+	
+	var board;
+	var monks;
+	var bots;
+	var info;
+	var metaMonks;
+	var dragCheck = false; // make sure can't key while dragging
+	
+	// 27 27 27 27 27 27 27 27 27 27 27 27 	
+	var keyCheck = false; // make sure they can't hold the key down constantly
+	var skipCheck = false; // keep track as to whether we have skipped a cycle
+	
+	var cycleText; 
+	var cycleButton;
+	var arrows;
+	var lens;
+	var lensText;
+	
+	var autoCheck = true;  
+	
+	makeBoard();	
+	makeCycle();
+	makeBots();
+	makeLens(); 
+	makeNav(); 
+	makeMonks(); // shifted this to be done last so bots are on top
+	makeInfo();
+
+	// the progress has finished are run the init function
+	// so fade in the info page
+	stage.addChild(progress); // make sure it stays on top of the others
+	progressDone();
+				
+	// I like calling functions, etc. as what the characters, etc. are in the app
+	// this way it is more fun as you are coding
+	// also, note that my next function goes above the previous function
+	// this means, the latest function is on top - that is my preference
+	// others might want it flipped around
+	// as the code gets more complex, you can rearrange things
+			
+		
+	// fade out the backing and fade in the intro
+	
+	function progressDone() {
+		
+		info.getChildAt(0).alpha = 0; // backing
+		info.getChildAt(1).alpha = 0; // logo
+		info.getChildAt(2).alpha = 0; // blurb
+		info.getChildAt(3).alpha = 0; // mute
+		stage.addChild(info);	
+		stage.update();	
+						
+		var listener = createjs.Ticker.on("tick", stage);
+		
+		createjs.Tween.get(info.getChildAt(0))
+			.to({alpha:1},300);
+		
+		createjs.Tween.get(info.getChildAt(1))
+			.wait(1500)
+			.to({alpha:1},3000);
+		
+		createjs.Tween.get(info.getChildAt(2))
+			.wait(3000)
+			.to({alpha:1},1000);
+			
+		createjs.Tween.get(info.getChildAt(3))
+			.wait(5000)	
+			.to({alpha:1},0)			
+			.call(function(){
+				createjs.Ticker.off("tick", listener); 
+				stage.removeChild(progress);				
+				progress = null;
+				stage.update();
+		});		
+		
+		createjs.Sound.play("logo");
+
+		// after progress - we will start with the info screen
+		// I do this quite often - have a rules or intro available from a menu
+		// but start off with that rules or intro - seems an efficient way to do it	
+		//stage.addChild(info);
+		if (autoCheck) {
+			stopAuto();
+		}
+		
+	}
+	
+	var muteButton;
+	var backingSound1, backingSound2, backingSound3, backingSound4;
+		
+	function makeInfo() {
+				
+		// make the info screen with backing to cover everything
+		// could make close button but will just make the whole screen clickable
+		// since this has a promanent logo - that should work
+		
+		info = new createjs.Container();		
+		var backing = new createjs.Shape();
+		info.cursor = "pointer";
+		var g = backing.graphics;		
+		g.beginFill("#333");
+		g.drawRect(0, 0, gameW, gameH);	
+		info.addChild(backing);
+		
+		info.on("click", function() {
+			if (autoCheck) {
+				startAuto();
+			}
+			// loop the sound using -1 in fifth position (sigh)
+			// looping unfortunately cannot be done seemlessly at this moment
+			// there is a pop - so I had to fade out backing sounds and fade back in (sigh)
+			// here I play the same beep sound but delayed so they overlap the fadeout
+			// I just let the growl sound fade out and in 
+			// when I used the same technique on the growl it was too busy			
+			
+			if (!backingSound1) { // make sure we do not make new sounds each time
+				backingSound1 = createjs.Sound.play("backing1", "none", 0, 0, -1);
+				backingSound2 = createjs.Sound.play("backing1", "none", 3000, 0, -1);
+				backingSound3 = createjs.Sound.play("backing2", "none", 0, 0, -1);
+				backingSound4 = createjs.Sound.play("quiet", "none", 0, 0, -1);
+				backingSound1.setVolume(.7);
+				backingSound2.setVolume(.7);
+				backingSound3.setVolume(.7);
+				backingSound4.setVolume(.4);
+				backingSound4.setMute(true);
+			}			
+
+			var listener = createjs.Ticker.on("tick", stage);		
+			// I don't like crossfading text so fade it out first
+			// then fade out the background
+			createjs.Tween.get(info.getChildAt(1))	
+				.to({alpha:0},200);
+			createjs.Tween.get(info.getChildAt(2))	
+				.to({alpha:0},200);
+			createjs.Tween.get(info.getChildAt(3))	
+				.to({alpha:0},200)
+			createjs.Tween.get(info.getChildAt(0))
+				.wait(300)				
+				.to({alpha:0},300)						
+				.call(function(){
+					createjs.Ticker.off("tick", listener); 
+					stage.update();
+					stage.removeChild(info);					
+				});			
+		});
+
+		var logo = new createjs.Text("NANORA", "200px hoveragevintage", "white"); 	
+		logo.textAlign = "center";		
+		logo.x = gameW/2;; 
+		logo.y = 200; 
+		info.addChild(logo);
+		
+		var description = 
+			"SNEAK PUZZLE GAME TO GET ALL META MONKS\n" +
+			"PAST NANO BOTS TO THE LENS OF THE LOST\n" + 
+			"MOVE ANY NUMBER OF MONKS PER CYCLE";
+			
+		var blurb = new createjs.Text(description, "26px Arial", "#CCC"); 
+		blurb.textAlign = "center";			
+		blurb.x = gameW/2; 
+		blurb.y = 402; 
+		info.addChild(blurb);
+		
+		// should have a mute button - ideally on the main app screen
+		// but we are out of room so put it in the info/intro
+		// will have to go and adjust the transitions to tween the mute button too
+		
+		muteButton = makeButton(160, buttonHeight, "#444", "#666", "MUTE", "#ddd", "white", 32);
+		muteButton.x = gameW / 2 + 50;
+		muteButton.y = gameH - 120;	
+		//muteButton.alpha = 0;			
+		muteButton.on("click", toggleMute);
+		muteButton.on("mouseover", buttonOn); 
+		info.addChild(muteButton);
+					
+	}	
+	
+	function toggleMute(e) {
+		e.stopImmediatePropagation();
+		if (createjs.Sound.getMute()) {
+			createjs.Sound.setMute(false);
+			e.target.label.text = "MUTE";
+		} else {
+			createjs.Sound.setMute(true);
+			e.target.label.text = "SOUND";
+		}
+		stage.update();
+	}
+	
+	
+	var infoButton; var retryButton; var nextButt;
+	
+	function makeNav() {
+		// make three buttons at the bottom
+		// one for the info page or rules
+		// one for replay and one for next
+		// we also have to fit in the logo at the very left
+		
+		// the buttons can use the same rollOn and rollOff type functions
+		// we can automate this some more though as follows		
+				
+		var buttons = new createjs.Container();
+		buttons.x = boardX;
+		buttons.y = boardY + boardH + squareS;
+		stage.addChild(buttons);
+		
+		// call a function (defined below) to make a button
+		// add each of these buttons to the buttons container
+		// and put one event on the container for the rollovers
+		// we will add the individual click events after
+		
+		var buttonWidth = gameW-boardW-board.x-squareS*2; // same as others
+		
+		infoButton = makeButton(buttonWidth, buttonHeight, "#333", "#666", "INFO", "#ddd", "white", 32);
+		infoButton.x =(squareW + squareS) * 2 + (squareW - buttonWidth) / 2;		
+
+		// do info button		
+		infoButton.on("click", doInfo);
+		buttons.addChild(infoButton);
+		
+		retryButton = makeButton(buttonWidth, buttonHeight, "#333", "#666", "RETRY", "#ddd", "white", 32);
+		retryButton.x =(squareW + squareS) * 3 + (squareW - buttonWidth) / 2;				
+		retryButton.on("click", doRetry);
+		buttons.addChild(retryButton);
+		
+		newButton = makeButton(buttonWidth, buttonHeight, "#333", "#666", "NEW", "#ddd", "white", 32);
+		newButton.x =(squareW + squareS) * 4 + (squareW - buttonWidth) / 2;	
+		newButton.on("click", doNew);			
+		buttons.addChild(newButton);
+					
+		buttons.on("mouseover", buttonOn); // amazing - this works for all buttons by using e.target
+							
+		// add the logo
+		
+		var logo = new createjs.Text("NANORA", "50px hoveragevintage", "white"); 		
+		logo.textBaseline = "alphabetic";
+		logo.x = boardX; 
+		logo.y = boardY + boardH + 60; 
+		stage.addChild(logo);
+		
+		var blurb = new createjs.Text("SNEAK PUZZLE GAME", "16px hoverage", "#777"); 			
+		blurb.textBaseline = "alphabetic";
+		blurb.x = boardX + squareW + squareS + 8; 
+		blurb.y = boardY + boardH + 60; 
+		stage.addChild(blurb);
+		
+		// after some user testing - it helps to label the meta monks
+		// because one might think they are just tiles in the game
+		// since the meta monks move, I remove the label after the second cycle
+		// and bring it back for each new game		
+		metaMonks = new createjs.Text("META MONKS", "20px Arial", "#CCC");			
+		metaMonks.x = boardX + 9; 
+		metaMonks.y = 44; 
+		stage.addChild(metaMonks);
+		
+		
+	}	
+	
+	function doInfo(e) {
+		if (autoCheck) {
+			stopAuto();
+		}
+				
+		// don't like to crossfade text so fade up background first
+		
+		var listener = createjs.Ticker.on("tick", stage);
+		info.getChildAt(0).alpha = 0; // backing
+		info.getChildAt(1).alpha = 0; // logo
+		info.getChildAt(2).alpha = 0; // blurb
+		info.getChildAt(3).alpha = 0; // mute
+		
+		stage.addChild(info);
+		
+		stage.update();
+		
+		createjs.Tween.get(info.getChildAt(0))
+			.to({alpha:1},300);
+		
+		createjs.Tween.get(info.getChildAt(1))
+			.wait(400)
+			.to({alpha:1},300);			
+		
+		createjs.Tween.get(info.getChildAt(2))
+			.wait(400)
+			.to({alpha:1},300);
+			
+		createjs.Tween.get(info.getChildAt(3))	
+			.wait(700)		
+			.to({alpha:.7},0)			
+			.call(function(){createjs.Ticker.off("tick", listener); stage.update();});	
+		
+	}
+	
+	
+	// make the functions to retry and next
+	
+	function doRetry(e) {
+		zog("retry");
+		
+		createjs.Sound.play("new");
+		
+		// this will be similar to restarting but we need to remember the start set up
+		// and direction for the bots
+		// so when we create the bots we need to record their position and direction
+		// then we set them back to these on retry
+		
+		if (autoCheck) {
+			stopAuto();
+		}
+		
+		monksAcrossCount = 0;
+		cycleText.num = 0;
+		cycleText.text = 0;
+		
+		// could do everything again like:
+		// clear all fullCheck, currentSquare, cycleSquare	
+		// put monks back, reposition bots and set new directions
+		// but might be easier to remove the monks and bots
+		// then just call their make functions again
+		
+		// could remove the board and make it again - but will just leave it
+		// so need to clear the square fullChecks
+		
+		var square;				
+		for (var i=0; i<board.getNumChildren(); i++) {
+			square = board.getChildAt(i);
+			square.fullCheck = false;
+		}
+		
+		stage.removeChild(monks);
+		stage.removeChild(bots);
+		stage.removeChild(arrows);
+		
+		monks = null; // remove them from memory
+		bots = null;
+		arrows = null;
+		
+		// the data is still in botData so it will rebuild the same board as last time
+		
+		makeBots(); // arrows are made in here
+		makeMonks();
+		
+		cycleDuration = 5;
+		
+		if (autoCheck) {			
+			startAuto();			
+		}
+		
+		var listener = createjs.Ticker.on("tick", stage);
+		createjs.Tween.get(metaMonks)
+			.to({alpha:1},1000)
+			.call(function(){createjs.Ticker.off("tick", listener);});	
+		
+		stage.update();			
+	}
+	
+	function doNew(e) {
+		
+		createjs.Sound.play("new");
+		
+		// this replaces the temporary Replay button in the lens of the lost
+		
+		// restarting the game	
+		// could just refresh the page but not always the nicest
+		// and might not work on mobile as an app - not sure...
+		// location.reload(); 
+		
+		zog("doNew");
+		
+		if (autoCheck) {
+			stopAuto();
+		}
+		
+		monksAcrossCount = 0;
+		cycleText.num = 0;
+		cycleText.text = 0;
+		
+		// could do everything again like:
+		// clear all fullCheck, currentSquare, cycleSquare	
+		// put monks back, reposition bots and set new directions
+		// but might be easier to remove the monks and bots
+		// then just call their make functions again
+		
+		// could remove the board and make it again - but will just leave it
+		// so need to clear the square fullChecks
+		
+		var square;				
+		for (var i=0; i<board.getNumChildren(); i++) {
+			square = board.getChildAt(i);
+			square.fullCheck = false;
+		}
+		
+		stage.removeChild(monks);
+		stage.removeChild(bots);
+		stage.removeChild(arrows);
+		
+		monks = null; // remove them from memory
+		bots = null;
+		arrows = null;
+		
+		botData = []; // send no data so function will build new board
+		
+		makeBots(); // arrows are made in here
+		makeMonks();
+		
+		cycleDuration = 5;
+		
+		if (autoCheck) {			
+			startAuto();
+		}
+		
+		var listener = createjs.Ticker.on("tick", stage);
+		createjs.Tween.get(metaMonks)
+			.to({alpha:1},1000)
+			.call(function(){createjs.Ticker.off("tick", listener);});	
+		
+		
+		stage.update();			
+					
+	}
+	
+	
+	function makeButton(width, height, color, rollColor, label, labelColor, labelRollColor, labelSize) {
+		
+		// this code would have been created for each button!
+		// it is better to make it once and pass in the little parts that change
+		// these we pass in through parameters - a fair number of them - sigh.
+		// in the future, this function could be made into a class
+		// and stored in a remote file perhaps a module to be used over and over
+		
+		// create a container for both the backing and the label
+		var button = new createjs.Container();
+		button.mouseChildren = false; // means insides are ignored by mouse events
+		button.width = width;
+		button.height = height;
+		button.color = color;
+		button.rollColor = rollColor;
+		button.labelColor = labelColor;
+		button.labelRollColor = labelRollColor
+		button.cursor = "pointer";
+			
+		var buttonBacking = new createjs.Shape();		
+		var g = buttonBacking.graphics;		
+		g.beginFill(button.color);
+		g.drawRoundRect(0, 0, button.width, button.height, 18);
+		button.backing = buttonBacking;		
+		button.addChild(buttonBacking);
+				
+		var buttonLabel = new createjs.Text(label, labelSize + "px Verdana", labelColor); 
+		buttonLabel.textBaseline = "middle";
+		buttonLabel.textAlign = "center";
+		buttonLabel.x = button.width / 2; 
+		buttonLabel.y = button.height / 2; 
+		button.label = buttonLabel; // to access the text if we need to
+		button.addChild(buttonLabel);
+		
+		return button;
+	}
+	
+	// made these a bit more generic than the ones for the cycle
+	// these events can be used with buttons made by the makeButton() function
+	// my Flash libraries are filled with these types of little components
+	
+	function buttonOn(e) {
+		e.target.on("mouseout", buttonOff);
+		var g = e.target.backing.graphics;
+		g.beginFill(e.target.rollColor);
+		g.drawRoundRect(1, 1, e.target.width-2, e.target.height-2, 18);
+		e.target.label.color = e.target.labelRollColor;
+		stage.update(); 
+	}
+
+	function buttonOff(e) {
+		e.target.off("mouseout", buttonOff); 
+		var g = e.target.backing.graphics;
+		g.beginFill(e.target.color);
+		g.drawRoundRect(0, 0, e.target.width, e.target.height, 18);
+		e.target.label.color = e.target.labelColor;
+		stage.update(); 
+	}
+	
+	
+	
+	// make lens - the area at the right where the monks are trying to go
+	
+	function makeLens() {
+		var g;
+		lens = new createjs.Shape();
+		g = lens.graphics;		
+		g.beginFill("white");
+		g.drawRoundRect(0, 0, gameW-boardW-board.x-squareS*2, boardH, 20);	
+		// lens.x = board.x + (squareW+squareS); // for testing
+		lens.x = board.x + (squareW+squareS) * cols;
+		lens.y = board.y;
+		lens.alpha = .9;
+		stage.addChild(lens);
+	
+		// trying out new font... changed my mind... but had to reduce size
+		// because logo was being dwarfed
+		// would have wanted to use bigger linespacing
+		// but not supported in EaselJS - would have to use DOM Element and got lazy
+		// plus if the font was bigger for the logo then there would be no room for the tag line
+		// too bad about the kerning on the L - quite promanent on the lens of the lost
+		
+		lensText = new createjs.Text("LENS OF THE LOST", "32px Verdana", "#AAA"); 
+		lensText.textAlign = "center";
+		// for consistent vertical font positioning across browsers
+		lensText.textBaseline = "alphabetic"; 
+		lensText.rotation = -90;
+		lensText.x = lens.x + 75; 
+		lensText.y = boardY + boardH / 2;;
+		stage.addChild(lensText);
+		
+		
+	}
+	
+	
+	// make the bots but just use shapes for now - bring in graphics after
+	
+	function makeBots() {
+		// a type of bot goes on each column
+		// it starts off in a random location on the column
+		// and it has a random direction with two going up and two going down
+		// this is not that easy to figure out but this type of thing comes up 1/10 times
+		
+		// make bots and put in random location:
+		
+		
+		bots = new createjs.Container();
+		bots.x = board.x;
+		bots.y = board.y;
+		stage.addChild(bots);
+		
+		// assign directions with two up and two down
+		
+		// so in the loop we just pick the shuffled value with the index
+		var directions = zim.shuffle([-1, -1, 1, 1]);		
+		//zog(directions[0]);
+						
+		arrows = new createjs.Container();
+		arrows.x = board.x;
+		arrows.y = board.y;
+		stage.addChild(arrows);
+		
+		// if there is botData then we use it to make the bot
+		// this means the user hit the retry button
+		// if the data has length this will assign true to dataCheck
+		// else it will assign false to datacheck
+		// can't do this in the loop because the loop will start to add data to dataCheck 
+		// that one got me for a few minutes ;-)
+		var dataCheck = (botData.length > 0);
+		
+		var bot; var g; var rand; var square; var arrow; var gA; 
+		var lastDirection = 0; var lastNormalized = 100; var normalized;  
+		
+		var picSide = 111;
+		var scale = squareH/picSide;
+		
+		for (var i=0; i<4; i++) {
+			
+			// replace the red dots with graphics
+			// I was really liking the red dots and the consistency of the vector look
+			// it may be that when I put the graphics in I won't like them
+			// but now with the mood of the sounds... perhaps I will
+			
+			// bot = new createjs.Bitmap(preload.getResult("bot"+(i+1)));			
+			// bot.scaleX = bot.scaleY = scale;			
+			
+			// decided to go back to vector circles for bots
+			// and add in little pictures of bots inside circles
+			
+			var colors = ["purple", "green", "blue", "red"];
+			var shapeColors = ["pink", "lightgreen", "lightblue", "pink"];
+			var colors = ["mediumorchid", "darkgoldenrod", "darkcyan", "indianred"];
+			var shapeColors = ["pink", "burlywood", "lightblue", "pink"];		
+			var lines = [
+				"Ai9AqIC9g1IAAAAIh0ioAAAC0IAAi/AB1izIh1CoAC+AqIi+g1",
+				"AB6iHIgNAAIhvCHIB3CLIjtABIB2iMIh0iHIDjAAIAEgE",
+				"Ah3iGIBzAsIBwgsIADgEAgECLIAAjlABsiGIAMAA",
+				"ACXCWQg/BAhYAAQhXAAg/hAQg+g+AAhYQAAhXA+g/QA/g/BXAAQBYAAA/A/QA/A/AABXQAABYg/A+g"
+				];		
+			var dots = [					"AgVDMQgKgKAAgOQAAgOAKgKQAKgKAMAAQAOAAAKAKQAKAKAAAOQAAAOgKAKQgKAKgOAAQgMAAgKgKgAClBCQgLgKAAgOQAAgOALgKQAJgKAPAAQANAAALAKQAJAKAAAOQAAAOgJAKQgLAKgNAAQgPAAgJgKgAjTBCQgKgKAAgOQAAgOAKgKQALgKANAAQAOAAALAKQAKAKAAAOQAAAOgKAKQgLAKgOAAQgNAAgLgKgAgZAdIgFgFIgBgBQgOgPAAgSQAAgVAOgOQAOgPATAAQAVAAAOAPQAJAIAEAMQABAHAAAIQAAASgOAPQgOAPgVAAQgPAAgMgJgABcibQgKgKAAgOQAAgOAKgKQAKgKAOAAQAOAAAKAKQAKAKAAAOQAAAOgKAKQgKAKgOAAQgOAAgKgKgAiLibQgKgKAAgOQAAgOAKgKQAKgKAOAAQAOAAAKAKQAKAKAAAOQAAAOgKAKQgKAKgOAAQgOAAgKgKg",
+	"ABUCoQgMgMAAgRQAAgRAMgMQAMgNARAAQARAAANANQANAMgBARQABARgNAMQgNAMgRAAQgRAAgMgMgAiSCoQgNgMAAgRQAAgRANgMQAMgNARAAQASAAALANQANAMAAARQAAARgNAMQgLAMgSAAQgRAAgMgMgABYhsQgNgMAAgRQAAgRANgMQAMgNARAAQASAAALANQAOAMAAARQAAARgOAMQgLAMgSAAQgRAAgMgMgAiShsQgNgMAAgRQAAgRANgMQAMgNARAAQASAAALANQANAMAAARQAAARgNAMQgLAMgSAAQgRAAgMgMg",
+	"AgaC4QgMgMAAgRQAAgRAMgMQAMgNAPAAQASAAAMANQAMAMABARQgBARgMAMQgMAMgSAAQgPAAgMgMgAiwh5QgNgMAAgRQAAgSANgMQAMgNARAAQARAAANANQAMAMAAASQAAARgMAMQgNAMgRgBQgRABgMgMgAB2h7QgMgNAAgQQAAgTAMgMQAMgMARAAQARAAANAMQANAMgBATQABAQgNANQgNALgRAAQgRAAgMgLg",
+	"AiQDRQgMgMAAgRQAAgSAMgMQANgMAQAAQASAAAMAMQANAMAAASQAAARgNAMQgMAMgSAAQgQAAgNgMgABWiUQgNgNAAgQQAAgSANgMQAMgNAQAAQASAAAMANQANAMAAASQAAAQgNANQgMALgSAAQgQAAgMgLg"
+				];
+	
+			bot = new createjs.Shape();
+			g = bot.graphics;		
+			g.beginFill(colors[i]);
+			g.drawCircle(0, 0, squareW/4);
+						
+			// exported vector shapes from Flash using http://www.adobe.com/devnet/createjs.html			
+			g.f(shapeColors[i]).p(dots[i]);			
+			g.f().s(shapeColors[i]).ss(1,1,1).p(lines[i]);
+			// rgba(255,255,255,.5) // to set with alpha
+			
+	
+			// if we had data to start then use it 
+			// else do what we were doing before and make the data
+			// at the end of the else we store the data in dataCheck
+			// for each bot we make
+			// then we make the bot with either the old data or the new data
+			
+			if (dataCheck) {
+				rand = botData[i][0];
+				bot.direction = botData[i][1]; 				
+			} else {
+			
+				// board squares are laid out in columns first
+				// so first column has child 0, 1, 2, 3 
+				// the next is 4, 5, 6, 7 then 8, 9, 10, 11
+				// so each column starts at i * rows
+				// we are starting in one row 
+				// now pick a random number from (i+1) * rows to (i+1) * rows + (rows-1)
+				// there is a function in danzen.js to do this
+							
+				rand = zim.rand((i+1) * rows, (i+1) * rows + (rows-1));
+				// zog(rand);
+				
+				// turns out you can't get by diagonals going the same way
+				// could add diagonal movement
+				// could force alternate directions
+				// could run the random positoning again if we get diagonals
+				// this last one would be my preference but it might be tricky
+				
+				// get a direction from the array and assign it to the bot			
+				bot.direction = directions[i];
+				
+				// normalized in this case just means to take the random number 
+				// which counts from the top left down and across so
+				// 0,1,2,3,4,5,6,7,8,9, etc.
+				// and figure out which row that number is on i.e. 0,1,2 or 3
+				
+				normalized = rand - (i+1)*rows; // this is what row the random number is on
+				// zog("normalized " + normalized);
+				
+				// only need to check for diagonals
+				// if bot is going in the same direction as the last bot
+				
+				if (bot.direction == lastDirection) {
+					
+					// zog("same direction");				
+					// zog("last normalized " + lastNormalized);
+				
+					// keep on looping and finding a new random number
+					// until the normalized value is not diagonally next to
+					// the last normalized value - remember it wraps as well (sigh)
+					// if this is not true, then it jumps out of the loop
+					// if it was not true to start, then it does not go into the loop
+					// if you wanted to run the loop at least once, use a do{} while() loop
+					while (  normalized == lastNormalized+1 || 
+							 normalized == lastNormalized-1 ||
+							(normalized == 0 && lastNormalized == 3) ||
+							(normalized == 3 && lastNormalized == 0) ) {
+						rand = zim.rand((i+1) * rows, (i+1) * rows + (rows-1));
+						normalized = rand - (i+1)*rows;	
+						// zog("renormalized " + normalized);			
+					}						
+				}
+				
+				lastNormalized = normalized;
+				lastDirection = bot.direction;
+				
+				// record the bot data
+				botData[i] = [rand, bot.direction];				
+				
+			}
+						
+			// so the selected square is
+			square = board.getChildAt(rand);
+			
+			// bot.x = board.getChildAt(rand).x + (squareW-picSide*scale)/2;
+			// bot.y = board.getChildAt(rand).y
+			
+			bot.x = board.getChildAt(rand).x + squareW/2; 
+			bot.y = board.getChildAt(rand).y + squareH/2;
+			bots.addChild(bot);	
+			
+			// set the fullCheck of the square to true
+			square.fullCheck = true;
+					
+			// draw arrow on top of column
+			arrow = new createjs.Shape();
+			gA = arrow.graphics;			
+			gA.beginFill("#999");
+			gA.mt(0,10*bot.direction).lt(20,-10*bot.direction).lt(-20,-10*bot.direction);
+			arrow.x = (squareW + squareS) * (i + 1) + squareW/2;			
+			arrow.y = -30;
+			arrows.addChild(arrow);
+			
+			// remember what square the bot is on
+			bot.square = square;
+						
+		}	
+		
+	}	
+	
+	
+	// the cycle is a text display of how many cycles have gone by
+	// it also comes with a button to advance cycles if set to manual (default)
+	
+	function makeCycle() {
+		cycleButton = new createjs.Shape();
+		cycleButton.cursor = "pointer";
+		cycleButton.color = "violet";
+		cycleButton.rollColor = "plum";
+		var g = cycleButton.graphics;		
+		g.beginFill(cycleButton.color);
+		cycleButton.width = gameW-boardW-board.x-squareS*2;
+		g.drawRoundRect(0, 0, cycleButton.width, buttonHeight, 18);
+		cycleButton.x = board.x + boardW + squareS;
+		cycleButton.y = squareS;
+		stage.addChild(cycleButton);	
+		
+		cycleText = new createjs.Text("0", "40px Verdana", "white"); 
+		cycleText.num = 0;
+		cycleText.textBaseline = "alphabetic";
+		cycleText.textAlign = "center";
+		cycleText.x = cycleButton.x + cycleButton.width / 2; 
+		cycleText.y = cycleButton.y + 43;
+		stage.addChild(cycleText);
+		
+		cycleButton.on("mouseover", rollOn);
+				
+		cycleButton.on("click", doCycle);
+		
+		function doCycle(e) {
+			// I know we are going to need a function for the auto as well				
+			advanceCycle(); 
+		}
+		
+		function rollOn(e) {
+			e.target.on("mouseout", rollOff);
+			var g = e.target.graphics;
+			g.beginFill(e.target.rollColor);
+			g.drawRoundRect(0, 0, e.target.width, buttonHeight, 18);
+			stage.update(); 
+		}
+	
+		function rollOff(e) {
+			e.target.off("mouseout", rollOff); 
+			var g = e.target.graphics;
+			g.beginFill(e.target.color);
+			g.drawRoundRect(0, 0, e.target.width, buttonHeight, 18);
+			stage.update(); 
+		}
+				
+		autoCheck = true;
+		startAuto();
+		
+		cycleToggle = new createjs.Shape();
+		cycleToggle.cursor = "pointer";
+		cycleToggle.color = "darkorange";
+		cycleToggle.rollColor = "orange";
+		var gT = cycleToggle.graphics;		
+		gT.beginFill(cycleToggle.color);
+		cycleToggle.width = gameW-boardW-board.x-squareS*2;
+		gT.drawRoundRect(0, 0, cycleToggle.width, buttonHeight, 18);
+		cycleToggle.x = board.x + boardW + squareS;
+		cycleToggle.y = boardY + boardH + squareS;
+		stage.addChild(cycleToggle);
+			
+		toggleText = new createjs.Text("STEP", "32px Verdana", "white"); 		
+		toggleText.textBaseline = "middle";
+		toggleText.textAlign = "center";		
+		toggleText.x = cycleToggle.x + cycleToggle.width / 2; 
+		toggleText.y = cycleToggle.y + buttonHeight / 2 + 1;
+		stage.addChild(toggleText);	
+		
+		cycleToggle.on("mouseover", rollOn);
+		cycleToggle.on("click", doToggle);
+		
+	}
+	
+	var autoInterval;
+	function doToggle(e) {
+		
+		//switch the button colors
+		var tempColor = cycleToggle.color;
+		var tempRollColor = cycleToggle.rollColor;
+		cycleToggle.color = cycleButton.color;
+		cycleToggle.rollColor = cycleButton.rollColor;
+		cycleButton.color = tempColor;
+		cycleButton.rollColor = tempRollColor;
+		
+		// redraw button backings
+		var g = cycleButton.graphics;		
+		g.beginFill(cycleButton.color);
+		g.drawRoundRect(0, 0, cycleButton.width, buttonHeight, 18);
+		
+		g = cycleToggle.graphics;		
+		g.beginFill(cycleToggle.color);
+		g.drawRoundRect(0, 0, cycleToggle.width, buttonHeight, 18);
+		
+		if (autoCheck) {
+			
+			backingSound1.setMute(true);
+			backingSound2.setMute(true);
+			backingSound3.setMute(true);
+			backingSound4.setMute(false);		
+			
+			autoCheck = false;
+			toggleText.text = "AUTO";
+			stopAuto();
+				
+			var gL = lens.graphics;
+			gL.clear();	 // nead to clear because alpha shows previous red	
+			gL.beginFill(cycleButton.rollColor);
+			var lensW = gameW-boardW-board.x-squareS*2;
+			gL.drawRoundRect(0, 0, lensW, boardH, 20);
+			lensText.text = "PRESS NUMBER";
+			lensText.color = "white";					
+			gL.beginFill("white");
+			gL.mt(lensW/2,30).lt(lensW/2+20,50).lt(lensW/2-20,50);
+			
+			clearTimeout(delay); //just in case
+			delay = setTimeout(function(){
+				lensText.text = "LENS OF THE LOST";
+				lensText.color = "#AAA";
+				var g = lens.graphics;
+				g.clear();	 // nead to clear because alpha shows previous red	
+				g.beginFill("white");
+				g.drawRoundRect(0, 0, gameW-boardW-board.x-squareS*2, boardH, 20);
+				stage.update();
+			}, 2000);
+			
+		} else {
+			
+			backingSound1.setMute(false);
+			backingSound2.setMute(false);
+			backingSound3.setMute(false);
+			backingSound4.setMute(true);			
+			
+			autoCheck = true;			
+			toggleText.text = "STEP";
+			startAuto();
+			
+			var gL = lens.graphics;
+			gL.clear();	 // nead to clear because alpha shows previous red	
+			gL.beginFill(cycleButton.rollColor); 
+			var lensW = gameW-boardW-board.x-squareS*2;
+			gL.drawRoundRect(0, 0, lensW, boardH, 20);
+			lensText.text = "AUTOMATIC";
+			lensText.color = "white";		
+			
+			clearTimeout(delay); //just in case
+			delay = setTimeout(function(){
+				lensText.text = "LENS OF THE LOST";
+				lensText.color = "#AAA";
+				var g = lens.graphics;
+				g.clear();	 // nead to clear because alpha shows previous red	
+				g.beginFill("white");
+				g.drawRoundRect(0, 0, gameW-boardW-board.x-squareS*2, boardH, 20);
+				stage.update();
+			}, 2000);
+		}
+		stage.update();
+	}
+	
+	function startAuto() {		
+		autoInterval = setInterval(advanceCycle, cycleDuration*1000);		
+	}
+	
+	function stopAuto() {		
+		clearInterval(autoInterval);
+	}
+	
+	
+	function advanceCycle() {
+		
+		// 27 27 27 27 27 27 27 27 27 27 27 27 
+		// problems when you pick up a monk and hold on to it
+		// and the cycle passes - you can let bot go right under
+		// in some cases you can drop on bot
+		// could test to see if bot is under monk when dropping
+		// but what if you let bot go right under you
+		// and then two cycles later let go of the monk		
+		// Also, if you pick up first bot and another bot gets hit
+		// then that bot goes back to start in picked up bot's location
+		// could test to see if that location originally belongs
+		// to a picked up monk
+		// or... could just not advance the cyle when a monk is picked up
+		// try this first and see how it feels when playing game
+				
+		if (dragCheck) {
+			// initially, just had a return here
+			// it worked well but sometimes it seemed awkward to skip the cycle
+			// and wait another 5 seconds...
+			// optimally, we would want to skip the cycle but as soon as they drop
+			// then advance the cycle right away
+			// so remember that we have skipped the cycle 
+			skipCheck = true;
+			return;
+		}
+		
+		// seems to work pretty well
+		// people can now almost pause the game
+		// by picking up a monk and holding it - gives time to think
+		// so... not quite optimal but you can call it a game-play technique
+
+		
+		createjs.Sound.play("cycle");
+		
+		cycleText.num++;	
+		cycleText.text = cycleText.num;
+		
+		if (cycleText.num == 5) {
+			cycleDuration = 3;
+			// do this in two steps
+			// if they do manual we still want to be fast
+			// if they move to automatic
+			if (autoCheck) {
+				stopAuto();
+				startAuto();
+			}
+		}
+		
+		
+		if (cycleText.num == 3) {
+			var listener = createjs.Ticker.on("tick", stage);
+			createjs.Tween.get(metaMonks)
+				.to({alpha:0},1000)
+				.call(function(){createjs.Ticker.off("tick", listener);});	
+		}
+		
+		// each time the cycle goes, the monks get a new cycleSquare
+		var monk; var i;
+		for (i=0; i<4; i++) {
+			monk = monks.getChildAt(i);
+			monk.cycleSquare = monk.currentSquare;
+		}
+	
+		// move the bots in their direction
+		var bot; var j; var k; var square; var monk; var startSquare;
+		for (i=0; i<4; i++) {
+			bot = bots.getChildAt(i);			
+			
+			// tell the bot's current square that it is no longer full
+			bot.square.fullCheck = false;
+			
+			// move the bot
+			bot.y += bot.direction * (squareH + squareS);
+			if (bot.y < 0) { // off the top so wrap to bottom
+				bot.y += (squareH + squareS) * 4;
+			}
+			if (bot.y > boardH) { // off the bottom so wrap to top
+				bot.y -= (squareH + squareS) * 4;
+			}
+			
+			// find out which new square the bot is on
+			// could try and calculate this either by height or by memory
+			// but I think I will just do it by hitTest
+			// remember not to use i for iterator as we are inside a loop using i
+			
+			for (var j=0; j<board.getNumChildren(); j++) {
+				square = board.getChildAt(j);
+				if (bot.hitTest(square.x+squareW/2-bot.x, square.y+squareH/2-bot.y)) {					
+					break; // we got the square so exit the loop
+				}
+			}
+			// if the square is full then that means we are hitting monk
+			if (square.fullCheck) {
+				zog("hitting a monk!");
+				// decide what to do in game
+				// could end the game
+				// could add 10 cycles or whatever
+				// could make the monk go back to the start
+				// could whiten square so can't use it 
+				// let's send the monk back to the first open square from the top and left
+								
+				// find out which monk is on the square				
+				for (k=0; k<4; k++) {
+					monk = monks.getChildAt(k);
+					if (monk.currentSquare == square) {
+						// we have found monk so exit loop
+						break;
+					}
+				}
+				
+				// now send monk back
+				// would want to play a sound too!
+				
+				createjs.Sound.play("back");
+				
+				for (k=0; k<4; k++) {
+					var startSquare = board.getChildAt(k);
+					if (!startSquare.fullCheck) {
+						monk.x = startSquare.x;	
+						monk.y = startSquare.y;	
+						monk.currentSquare = startSquare;
+						monk.cycleSquare = startSquare; // nearly forgot this one...
+						startSquare.fullCheck = true;
+						break;
+					}
+				}
+								
+			}
+					
+			square.fullCheck = true;
+			bot.square = square;	
+			
+		}
+		
+		stage.update();
+		
+	}
+	
+	// add key event listener for arrows
+	// these will act just like a mouse move 
+	// so we need to be careful and apply the various checks and start values, etc.
+	
+	window.addEventListener("keydown", doKey);
+	
+	function doKey(e) {
+		if (!e) e=event; // for some old IE or something...
+		var k = e.keyCode;
+		// zog(k); // this is how you find out the key number that is pressed
+		
+		// 27 27 27 27 27 27 27 27 27 27 27 27 
+		if (keyCheck) {return;} // currently processing a key
+		keyCheck = true;
+		
+		if (dragCheck) {return;} // currently dragging
+		if (!currentMonk) {return;} // they have not selected monk
+		
+		// forgot about this and had to solve bug
+		currentMonk.startX = currentMonk.x;  
+		currentMonk.startY = currentMonk.y;
+		if (k == 37) { // left
+			currentMonk.x -= (squareW+squareS);
+			doKeyMove();			
+		} else if (k == 38) { // up
+			currentMonk.y -= (squareH+squareS);
+			doKeyMove();			
+		} else if (k == 39) { // right
+			currentMonk.x += (squareW+squareS);
+			doKeyMove();			
+		} else if (k == 40) { // down
+			currentMonk.y += (squareH+squareS);
+			doKeyMove();			
+		} 
+		function doKeyMove() {		
+			// forgot about fullCheck and had to solve bug	  
+			currentMonk.currentSquare.fullCheck = false;			
+			checkMove(currentMonk);
+		}
+	}
+
+
+		
+	function makeMonks() {
+			
+		// make a container for the monks
+		
+		monks = new createjs.Container();		
+		monks.x = boardX;
+		monks.y = boardY;
+		stage.addChild(monks); 	
+		
+		var monk; var g;
+		for (var i=0; i<4; i++) {
+			monk = new createjs.Shape();
+			g = monk.graphics;
+			g.beginStroke("white").setStrokeStyle(2);
+			g.beginFill("#000");
+			g.drawRoundRect(0, 0, squareW, squareH, 20);
+			g.beginFill("#FFF"); // outer circle
+			g.drawCircle(squareW/2, squareH/2, squareH/2*.8);
+			g.beginFill("#000"); // inner circle
+			g.drawCircle(squareW/2, squareH/2, squareH/2*.5);
+			monk.x = 0;
+			monk.y = i*(squareH+squareS);
+			monks.addChild(monk);
+			
+			// since we are putting monks on these squares
+			// we need to record which square the monk is on
+			monk.currentSquare = board.getChildAt(i);
+			
+			// need to check that they move one square away per cycle
+			// so introduce the monk's cycleSquare 
+			monk.cycleSquare = board.getChildAt(i);	
+			
+			// we also need to set the square's fullCheck property to true
+			monk.currentSquare.fullCheck = true;
+			
+		}		
+		
+		// add moving monks 
+		// indicate which monk is moving and leave indication as selected monk
+		// this means we have to clear any previously selected monk
+				
+		monks.cursor = "pointer";
+		
+		monks.on("mousedown", function(e) {
+			
+			// remember that we are dragging so we do not let keypress move while dragging
+			dragCheck = true;
+				
+			e.target.diffX = e.stageX - e.target.x;
+			e.target.diffY = e.stageY - e.target.y;
+			// recording where we started for snapping back if no hit
+			e.target.startX = e.target.x;  
+			e.target.startY = e.target.y;  
+			clearSelected(); // this clears any previously selected monks
+			e.target.graphics.beginFill("#fff"); // inner circle
+			
+			// black circle edge was showing on ipad so make white center circle a bit bigger
+			e.target.graphics.drawCircle(squareW/2, squareH/2, squareH/2*.6); 
+			monks.cursor = "move";
+			monks.addChild(e.target); // adds it to the top (could use setChildIndex())
+			
+			// need to mark this square as no longer full 
+			e.target.currentSquare.fullCheck = false;
+			stage.update();	
+		});
+				
+		monks.on("pressmove", function(e) {			
+			e.target.x = e.stageX-e.target.diffX;
+			e.target.y = e.stageY-e.target.diffY;			
+			stage.update();			
+		});
+		
+		monks.on("pressup", function(e) { 
+			monks.cursor = "pointer";
+			
+			// 27 27 27 27 27 27 27 27 27 27 27 27 
+			// move the dragCheck to after checkMove and tween back
+			
+			// remember that we stopped dragging so we can use keys
+			// dragCheck = false;
+			
+			// adding key moves and they will check monks the same way
+			// so move the on press up stuff to a more generic checkMove() function
+			// remember to move it outside of the makeMonks() function
+			// so the keydown event can access it
+			
+			checkMove(e.target);
+			
+		});		
+		
+	}
+	
+	var currentMonk; var delay;
+	function checkMove(monk) {
+		
+		currentMonk = monk; // use for keypress
+		
+		// see if the monk has reached the end or the lens of lost
+		// the holder for lens and monks do not start at the same place
+		// so need to adjust to same coordinate space (pain in the neck)		
+		// check to make sure monk can move to end as well 
+		// comment out the first part of the if statement for testing...
+		
+		if (monk.cycleSquare.x > squareW * 4 &&
+			lens.hitTest(monks.x+monk.x+squareW/2-lens.x, monks.y+monk.y+squareH/2-lens.y)) {					
+		
+			monk.x = -4000; // do not removeChild() as that messes up looping
+			
+			monk.currentSquare.fullCheck = false;
+			
+			lensText.color = "white";
+			var g = lens.graphics;	
+			g.clear();	
+			g.beginFill("red");
+			g.drawRoundRect(0, 0, gameW-boardW-board.x-squareS*2, boardH, 20);
+			
+			monksAcrossCount++;	
+			clearTimeout(delay); // if clear the last two at once creates bug	
+			 
+			// adjusted to only show end message not be a button
+			// as the restart buttons are now at the bottom
+			
+			var delayTime;
+			if (monksAcrossCount >= 4) {							
+				// will want to play sound
+				
+				createjs.Sound.play("win");			
+				
+				lensText.text = "LEVEL COMPLETE!";	
+				if (autoCheck) {
+					stopAuto();
+				}				
+				delayTime = 2000;							
+			} else {			
+				if (monksAcrossCount == 3) {
+					cycleDuration = 2;
+					if (autoCheck) {
+						stopAuto();
+						startAuto();	
+					}
+				}
+				// will want to play sound	
+				
+				createjs.Sound.play("across");
+				
+				lensText.text = "CONGRATULATIONS!";
+				delayTime = 1000;								
+			}		
+			delay = setTimeout(function(){
+					lensText.text = "LENS OF THE LOST";
+					lensText.color = "#AAA";
+					var g = lens.graphics;
+					g.clear();	 // nead to clear because alpha shows previous red	
+					g.beginFill("white");
+					g.drawRoundRect(0, 0, gameW-boardW-board.x-squareS*2, boardH, 20);
+					stage.update();
+				}, delayTime);	
+			stage.update();	
+			
+			// 27 27 27 27 27 27 27 27 27 27 27 27 27 27 27 
+			// nearly forgot these!
+			dragCheck = false;
+			skipCheck = false;
+			keyCheck = false;
+			
+			return;
+		}
+		
+		// snap the object onto a square
+		// could be done with code to find the nearest position on a grid
+		// will do it by looping through hitTests
+		
+		var square;
+		var hitCheck = false;
+		var lastSquare;
+		var goodCheck
+		
+		for (var i=0; i<board.getNumChildren(); i++) {
+			square = board.getChildAt(i);
+			if (square.hitTest(monk.x-square.x+squareW/2, monk.y-square.y+squareH/2)) {
+				
+				// make sure square only moves one square away (sigh)
+				// see how even the simplest things can get complex?
+				// could go by eligible grid locations 
+				// like if we are at B2 then we can go to A2, B1, B3, C2
+				// we could test if x is the same then y needs to be one square away
+				// if y is the same then x needs to be one square away
+				// else it is not a valid square - I like this one
+				lastSquare = monk.currentSquare;		
+								
+				var goodCheck = false; 
+				if (lastSquare.x == square.x) {
+					//zog("x is same");
+					if (Math.abs(lastSquare.y - square.y) <= squareH + squareS*2) { // little extra
+						goodCheck = true;
+					}
+				} else if (lastSquare.y == square.y) {
+					//zog("y is same");	
+					if (Math.abs(lastSquare.x - square.x) <= squareW + squareS*2) { // little extra
+						goodCheck = true;
+					}
+				} 
+				if (!goodCheck) {
+					break; // exits the loop
+				}				
+				
+				// need to check that they move one square away per cycle
+				// so introduce the monk's cycleSquare 
+				// use the cycleSquare instead of the currentSquare						
+				// this check is exactly the same as above but we need both
+				// otherwise it allows for diagonal movement
+				// so we can just reuse the lastSquare and goodCheck variable names
+				// in a sense, we are making a bunch of gates - or checks
+				// if it ever fails, we exit the loop
+				
+				lastSquare = monk.cycleSquare;
+				goodCheck = false; 
+				if (lastSquare.x == square.x) {
+					if (Math.abs(lastSquare.y - square.y) <= squareH + squareS*2) { // little extra
+						goodCheck = true;
+					}
+				} else if (lastSquare.y == square.y) {
+					if (Math.abs(lastSquare.x - square.x) <= squareW + squareS*2) { // little extra
+						goodCheck = true;
+					}
+				} 
+				if (!goodCheck) {
+					break; // exits the loop
+				}		
+				
+				
+				// check if square is full
+				if (square.fullCheck) {
+					break; // exits the loop
+				}			
+				// now the square is full					
+				square.fullCheck = true;
+				// remember which square the monk is on
+				monk.currentSquare = square;
+					
+				hitCheck = true;
+										
+				move(monk, square.x, square.y, 50); // what, where, how fast ms
+			}
+		}
+		if (!hitCheck) {
+			// put square back to where it came from
+			
+			createjs.Sound.play("wrong");
+			
+			monk.currentSquare.fullCheck = true;
+			move(monk, monk.startX, monk.startY, 200);
+		} else {
+			
+			// sort of detracts from the sneaking
+			// createjs.Sound.play("move");
+		}
+		
+		stage.update();	
+	}	
+
+	
+	// fixed the tween issue I think
+	// needed to store the Ticker call in a variable
+	// if using between functions
+	
+	var tweenTick;
+	function move(obj, x, y, s) {
+			
+		// animate to position	
+		// actually found after about 40 moves 
+		// that tweens were somehow slowing the app down
+		// I think I am stopping the ticker properly
+		// so will have to look into it	
+		
+		// obj.x = x;
+		// obj.y = y;
+		
+		//
+							
+		// just a little wrapper function to avoid all this		
+		createjs.Tween.get(obj)
+			.to({x:x, y:y},s,createjs.Ease.Quad)
+			.call(doneAnimating);
+		tweenTick = createjs.Ticker.on("tick", stage);	
+		
+	}
+
+	function doneAnimating() {
+		createjs.Ticker.off("tick", tweenTick);
+		// 27 27 27 27 27 27 27 27 27 27 27 27 
+		keyCheck = false;
+		// moved this to here too
+		// otherwise, glitch could happen
+		// as monk is animating back to place and cycle changes
+		dragCheck = false;
+		
+		// 27 27 27 27 27 27 27 27 27 27 27 27 
+		// if we have been holding the monk at a scheduled cycle change
+		// then we do not do the cycle change and we set skipCheck to true
+		// now that we have finished the monk move, we should advance the cycle
+		// and reset the cycle duration
+		// if we do not reset the cycle duration, it could go twice quickly
+		// Also, don't think it will matter, we only want to do this on auto
+		if (skipCheck && autoCheck) {
+			skipCheck = false; // no longer skipping
+			advanceCycle(); // right away!
+			stopAuto(); // reset timing - almost forget to do this
+			startAuto();
+		}
+		
+	
+		
+		
+	}	
+
+	function clearSelected() {
+		var monk; // this will store the temporary monk as we loop		
+		for (var i=0; i<4; i++) {
+			monk = monks.getChildAt(i);
+			monk.graphics.beginFill("#000"); // inner circle
+			monk.graphics.drawCircle(squareW/2, squareH/2, squareH/2*.5);
+		}		
+	}
+	
+	function makeBoard() {
+		
+		// we could draw each board square in one shape
+		// but perhaps we will want individual shapes
+		// so that we can do hitTest, etc. on them
+		
+		// make a container for all the board squares:
+		// and position it at the boardX and boardY
+		
+		board = new createjs.Container();
+		stage.addChild(board);
+		board.x = boardX;
+		board.y = boardY;
+		
+		// grids usually mean a loop within a loop
+		// set it up and test with a zog to make sure it is as expected
+		// you can do each column for a row or each row for a column 
+		// it is up to you	
+		
+		var i; var j; var rect; var g;
+		for (i=0; i<cols; i++) {
+			for (j=0; j<rows; j++) {
+				
+				rect = new createjs.Shape();
+				g = rect.graphics;
+				g.beginStroke("white").setStrokeStyle(2);
+				g.beginFill("#ccc");
+				// here is the technique for tiling with spacing
+				g.drawRoundRect(0, 0, squareW, squareH, 20);				
+				rect.x = i*(squareW+squareS);
+				rect.y = j*(squareH+squareS);
+				rect.fullCheck = false; 
+				board.addChild(rect);				
+			}
+		}						
+	}	
+	
+	stage.update();	
+}
+
+
+function resizeMe() {
+	
+	// strategy:  
+	// design for an average dimension 960 x 640
+	// all your positioning will be based on these dimensions
+	// then scale the whole canvas
+	// and pad the left/right or top/bottom as needed
+	// you can go further into flexive design http://danzen.com/flexive
+	
+	var can = zid("myCanvas");
+	
+	var w = window.innerWidth;
+	var h = window.innerHeight; 	
+	var newH; 
+	var newW;
+	
+	// this code handles horizontal layout:	
+	if (w/h >= 960/640) {
+		newH = h;
+		newW = newH*960/640;	
+	} else {
+		newW = w;
+		newH = newW*640/960;
+	}
+	
+	// this code would handle vertical layout
+	/*
+	if (w/h >= 640/960) {
+		newH = h;
+		newW = newH*640/960;	
+	} else {
+		newW = w;
+		newH = newW*960/640;
+	}
+	*/
+	
+	can.style.width = newW + "px";
+	can.style.height = newH + "px"; 
+	can.style.left = ((w-newW)/2) + "px";
+	can.style.top = ((h-newH)/2) + "px";
+	can.style.backgroundColor = "#333";
+	
+}
+
+</script>
+
+
+</head>
+
+<body>
+<canvas id="myCanvas" width="960" height="640">alternate content</canvas>
+</body>
+</html>

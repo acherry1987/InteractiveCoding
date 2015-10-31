@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Objects and Events - JavaScript Interactive Basics</title>
+<link href="interactive.css" rel="stylesheet" type="text/css" />
+<script>var zon = false; // false for no comments from danzen.js</script>
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+<style>
+	#logo {position:absolute; left:100px; top:100px;}
+	#myCanvas {background-color: blue;}
+</style>
+
+<!-- include the complete createJS suite
+or can go to createjs.com for individual code
+
+EaselJS - working with Canvas - drawing and objects
+TweenJS - animation with code
+SoundJS - working with Sound
+PreloadJS - preload images to work with
+
+-->
+
+<script src="createjs-2015.05.21.min.js"></script>
+
+<script>
+
+window.addEventListener('load', interactive);
+
+function interactive() {
+
+	zog("____1. OBJECTS AND EVENTS____");
+
+	var stage = new createjs.Stage("myCanvas");  // createjs is name stage , class is function that has a capital letter
+	stage.enableMouseOver(10);
+
+	var stageW = stage.canvas.width;
+	var stageH = stage.canvas.height;
+	console.log(stageW);
+
+	var logo = new createjs.Bitmap("images/logo_s.jpg");
+	stage.addChild(logo);
+
+
+	logo.x = 200;
+	logo.y = 200;
+
+	logo.alpha = .8; // 0 - 1  . like opacity setting
+	logo.cursor = "pointer";
+	logo.rotation = 20;
+
+//	zog(logo.getBounds().width);
+
+	var logoWidth = logo.getBounds().width;
+	var logoHeight = logo.getBounds().height;
+
+	logo.regX = logoWidth / 2;
+	logo.regY = logoHeight / 2;
+	zim.outline(logo);
+
+
+	// logo.addEventListener("click",turnMe);
+
+	logo.on("click", turnMe); // calls function when click on it
+
+  function turnMe() {
+		console.log("turning");
+		logo.rotation += 90;
+		stage.update();
+		// logo.off("click", turnMe);
+	}
+
+
+logo.on("mouseover", doOver);
+
+function doOver {
+	console.log ("rolling");
+	logo.alpha = 1; // alpha is a createjs property
+	stage.update();
+}
+
+logo.on("mouseout", function(){  // is function literal
+	console.log ("moooseout");
+	logo.alpha = .8
+	stage.update();
+});
+
+
+
+	// logo.on("mouseover", function(){
+	// 	console.log ("rolling"); });
+	// 	logo.alpha = 1;
+	// 	stage.update(); // opposite is mouseout
+
+
+
+	setTimeout(refreshMe, 400);
+	function refreshMe() {
+		stage.update();
+	}
+
+
+
+}
+
+</script>
+
+
+</head>
+<body>
+
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<canvas id="myCanvas" width="600" height="600">alternate content</canvas>
+
+
+<footer>
+Mini Site - Interactive Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+
+</body>
+</html>

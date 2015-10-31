@@ -1,0 +1,1143 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>JavaScript Programming Basics</title>
+<link href="programming.css" rel="stylesheet" type="text/css" />
+
+<style>
+	#logo {position:absolute;}
+</style>
+</head>
+<body>
+
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<img id="logo" src="images/logo.png" />
+
+<script>
+
+/*
+
+	Scripting Overview (JavaScript is a type of scripting language)
+
+	STATEMENTS
+	Scripting is basically instructions for the computer to do something
+	Each instruction ends in a semicolon ; and is called a statement
+	Statements are like steps in the instructions and generally run consecutively
+	Using a // means ignore the line - we call this a comment and the text goes grey
+	There is a multiline comment surrounding all this text - note how it starts and ends
+
+	BLOCKS
+	We can group statements in between TWO curly braces {} which we call a block of code
+	Sometimes, in our list of statements, we run or call blocks of code
+	These execute (run) and then we go back to our original list of statements
+	This means that the overall code does not necessarily run from top to bottom
+	Examples of this are Functions where we call a block of code whenever needed
+	And Loops where we repeat a block of code over and over for efficiencies
+	We often even nest blocks of code within blocks of code {{}}
+	But, within blocks of code, statements proceed from top to bottom ;-)
+
+	PARTS OF A STATEMENT
+	Within a statement, there are different parts - words and special characters
+	These might be keyword commands belonging to the language (var, for, if, function)
+	Or they could be operators - again belonging to the language (+,-,>,!)
+	They could be identifiers that we have made up to label objects (myVar, winner)
+	And they could be objects like numbers, strings, dates, etc. (7, "hello")
+	You may hear the term Expression.  An expression is anything that has a value.
+	"Hello" is an expression, x + 5 is an expression (operand operator operand)
+	This is all getting a little too specific for me so let's carry on.
+
+	SYNTAX
+	When we code, there are only certain terms we can use and in certain order
+	This is called the Syntax of the language
+	If you use the wrong commands or use commands in the wrong way, you will get an error
+	The error will show up in the command console (CTRL SHIFT I - to toggle the console)
+	If code coloring is turned on (as it is in DreamWeaver) you should see:
+		keywords in bold Blue
+		browser objects in purple
+		language objects and methods in green
+		language properties in black
+		number objects in red
+		string objects in bright blue
+		function declarations in bold Black
+		operators in Blue
+		brackets in bold Blue
+		identifiers in black
+
+	OBJECTS
+	Objects and Object Oriented Coding is a great big important topic
+	We will explore objects in detail in the next few lessons
+	For now... objects are the things that we see or work with - like objects in life
+	They have properties - location, color, text, rotation
+	They have methods - things you can do with them or to them - play, open
+	There are events that can happen to the object - click, complete, mouseover
+	Pretty well everything that is not a keyword is an object
+	The browser window is an object, the document is an object, a div is an object
+	We can make custom objects but that is next term
+	However, we will use custom objects made by others this term
+	A slight variation in JavaScript is that strings, numbers and booleans are Primatives
+	Primatives have no properties.  But JavaScript wraps the primatives in objects
+	You probably will never have to worry about this ;-)
+
+	LOGIC
+	Aside from syntax and objects, there is what to do with the objects
+	This is where we start to apply the rules of the environment and is indeed programming
+	There are only a half dozen types of statements that we use over and over
+
+	Here are some definitions and simple examples of the logical statements
+	We will spend several lessons going over these and practicing them
+	They will be used over and over again this year and in your scripting career!
+	They are really wonderful - powerful puzzle pieces - truly magical
+	However the syntax and various aspects are certainly tricky to start
+	Do not worry - the will become second nature eventually!
+
+	These are short examples - there are more indepth examples in the code further down
+
+	Variable: a holder, a container with a label
+	here we use the keyword var to declare a variable with an identifier x
+	we assign the variable x the number 7 using the assignment operator
+
+	var x;
+	x = 7;
+
+	// or all at once like this:
+
+	var x = 7;
+
+	Conditional: tests to compare the value of an expression
+	here we use the if else keywords round brackets and curly brackets
+	to make a conditional expression
+	we use the comparison operator == to test if x is equal to 7
+	we run the first block of code if the x == 7 Boolean expression is true
+	we run the second block of code if the x == 7 Boolean expression is false
+	these blocks of code could have many statements
+
+	if (x == 7) {
+		//do this;
+	} else {
+		//do this;
+	}
+
+	Function: declares a block of code to be run any time the function is called
+	Here we declare a function with an identifier of test
+	We collect a parameter (like a variable) called n
+	And we define a block of code that does a conditional test on n
+	If the test is true we return true and otherwise we return false
+	return is a keyword that makes the function end and send back a value
+	We can make functions without parameters
+	We can make functions that do not return a value
+	It depends on what we want the function to do
+	Finally, we execute or run the function by using the identifier and ()
+	Note, here we are passing the value of x into the function
+	This means that we will be testing whatever x is
+	x happens to be 7 from above so we have 7 * 5 = 35 which is less than 50
+	So test(x) would have a value of Boolean false
+
+	function test(n) {
+		if (n * 5 > 50) {return true;}
+		return false;
+	}
+	test(x);
+
+	Loop: repeats a block of code while a condition is true
+	here we loop starting with a variable i having a value of 0
+	we keep looping as long as i is less than 10
+	each time we finish a loop we add one to the value of i
+	the i++ is a short form for i = i + 1
+	each time we loop we do what is in the block of code
+	so we would execute (call) the function makeMonster ten times
+
+	for (var i=0; i<10; i++) {
+		makeMonster();
+	}
+
+	Array: is a list of variables each with an index that increases from zero
+
+	var a = ["Dan", "Andrew", "Wasim", "Janice"];
+	a[0]; // refers to the first element in the array "Dan"
+	console.log(a[1]); // is a function that would display "Andrew" in the log window
+	a[0] = "Dan Zen"; // this would assign "Dan Zen" to the first element of the array
+
+	Object: is a collection of properties each with a value that we access via identifier
+
+	var o = {name:"Dan Zen", occupation:"Inventor"}
+	o["name"]; // has a value of "Dan Zen"
+	o.name; // is the same thing and has a value of "Dan Zen"
+	o["occupation"] = "Professor"; // would replace "Inventor" with "Professor"
+	o.occupation = "Inventor"; // would put "Inventor" back into the occupation
+	// there is no difference really in using the . syntax or the [] array access operator
+	// the handy thing about the array access operator is that it takes a string
+	// this means we can dynamically create what property we are asking for (more later)
+	// the handy thing about the . syntax is that it is shorter
+
+
+*/
+
+/*
+
+	JAVASCRIPT
+
+	JavaScript is a programming language that can be run in the Browser (and other places)
+	Here we are in an HTML page and JavaScript runs between script tags
+	To access objects in the browser we have to use an API - Application Program Interface
+	We can control objects in the browser with the Web API for Window and Document
+	We can access tags on the Web page using the DOM API (Document Object Model)
+	These are traditionally considered part of JavaScript but recently have been separated
+	They are still used in the same way as always, for instance:
+
+	window.document.getElementById("logo").style.left = "0px";
+	// or leaving off the default window to be the usual
+	document.getElementById("logo").style.left = "0px";
+
+	note the dot syntax - we access methods and properties of an object with a dot .
+	more on objects, methods, properties and events a few lessons from now...
+
+	We will access the DOM so we can demonstrate our programing
+	The Web API and DOM API will be taught in the second half of AD1
+
+	Most of our coding beyond this module will use two JavaScript libraries - CreateJS and ZIM js
+	These will help us code for the HTML canvas tag
+	On the canvas we do not use the DOM (traditional HTML tags like div, etc.)
+	Rather CreateJS provides a Bitmap Object Model or a BOM with containers, shapes, Bitmaps, Text, etc.
+	CreateJS provides robust commands for advanced interactivity
+	like dynamic drawing, animation, dragging and dropping and hit tests
+	ZIM js adds components, and simplifies a number of interactive requirements
+	We will use these two libraries in the upcoming modules
+
+	DEBUGGING
+
+	When we code we often want to see what our code is doing and the values of our expressions
+	We can do this with the console.log(); function
+	We need to show the console - you can access the console through the Browser Developer Tools
+	Or CTRL SHIFT I should toggle the console
+	You can dock the console at the right of the browser
+	console.log("hello"); // will write "hello" on the console.
+
+	You can also use alert("hello"); to pop up an HTML alert box - but these get annoying
+	And you can use document.write("hello"); to make the "hello" show up on the HTML page
+	You will find that for more complex coding, it is easiest to use the console
+
+*/
+
+	console.log("hello world - long");
+	console.log("hello world - short");
+
+/*
+
+	STYLES
+
+	You can change the look and position of something with styles as in CSS
+	These are the same styles that you will be learning in Web Design
+	When accessing these styles with JavaScript you use the style property of the object
+	and then the style name.  Note that hyphens are replaced with camelCase in JavaScript:
+
+	obj.style.backgroundColor = "#AAAAAA";
+	obj.style.borderBottom = "1px solid orange";
+
+	Here we will set POSITIONING styles
+	note: to use the left, top, bottom or right styles,
+	we have to set the position style to absolute (or relative)
+	we did this in the style tag up top
+	we could have set it with code - much like we do below for left and top
+	positions can be in units of px, %, em, etc. but I usually think in px
+	note: if we do not set a unit for postion it will default to px
+
+*/
+
+	document.getElementById("logo").style.left = "100px";
+	document.getElementById("logo").style.top = "100px";
+
+	// ***** There are shorter ways to console.log(), document.getElementById() and accessing styles
+	// ***** These will be shown in future modules using ZIM
+
+
+	// -------------------------------------------------
+	// PROGRAMMING BASICS
+	// -------------------------------------------------
+
+	var global = "global variable"; // used for the scope example (ignore for now)
+
+	// TABLE OF CONTENTS
+	// each section is inside what we call a function
+	// a function is a block of code that we can call (run) anytime we want
+	// just uncomment the function(s) you want to run
+	// when you do not want to run the function then put a comment it with //
+	// this way, we can concentrate on one section at a time
+
+	variables(); 				// 1.  VARIABLES - storing a value
+	//conditionals(); 			// 2.  CONDITIONALS - testing a value
+	//randomNumbers();			// 3.  RANDOM NUMBERS - a number between a range
+	//functions(); 				// 4.  FUNCTIONS - running a block of code
+	//advancedFunctions(); 		// 5.  ADVANCED FUNCTIONS - parameters and return values
+	//scope();    				// 6.  SCOPE - access to variables and functions
+	//loops();    				// 7.  LOOPS - repeating a block of code
+	//arrays();   				// 8.  ARRAYS - a list of values
+	//objects();  				// 9.  OBJECTS - a holder for properties
+	//animation();				// 10. ANIMATION - using time to change properties
+
+
+function variables() {
+
+	console.log("____1. VARIABLES____");
+
+	// variables are used to hold a value so that we can use the value later
+	// we can also change the value of the variable - that is why it is "variable"
+	// values are objects like numbers, strings, dates, tags on the page, etc.
+	// for example, we could store the user's name in a variable or their score, etc.
+
+	// we can declare a variable using the keyword var which comes with the language
+	// after var we put the name of the variable (its identifier) that we make up
+	// the identifier must be one word using letters, numbers, _ or -
+	// but it cannot start with a number
+	// by convention, we start the variable with a lowercase letter
+	// and we use camelCase if the variable name is two or more words
+	// we then end the declaration statement with a semicolon ;
+
+	var myVar;
+
+	// a variable when declared has a scope of the location of the declaration
+	// there is a scope section where we explore this further
+
+	// to store (put) something in the variable we can assign it a value
+	// here we use the assignment operator = to put the string "hello" into the variable myVar
+	// we say, myVar equals hello
+
+	myVar = "hello";
+
+	// we can both declare and assign a value in one statement
+	// here we declare a variable called num and assign it the number 1
+	// we say, var num equals one
+
+	var num = 1;
+
+	// display the contents of the variable num to the console log
+	console.log(num);
+
+	// display the string num to the console log - see the difference?
+	console.log("num");
+
+	// display a description and the contents of num to the log
+	// note that we use the + to join strings or strings and numbers (concatenation)
+	// the + is used for addition when used between numbers only
+	console.log("num = " + num);
+
+	// you only need to declare a variable once
+	// you can re-assign variables values any number of times
+
+	num = 10; // now the num variable has a value of 10, not 1
+	console.log(num);
+
+	// a variable that has only been declared has a value of undefined
+	var num2;
+	console.log(num2); // undefined
+
+	// if you try and access a variable that has not been declared
+	// you get an error saying that the variable is not defined
+	// console.log(num3);
+
+	// see the difference?
+	// the num2 variable is defined when you declare it
+	// it is the value of num2 that is undefined - that's okay
+	// it is not okay to try and access a variable that has not been defined
+	// this gives an error
+
+}
+
+
+function conditionals() {
+
+	console.log("____2. CONDITIONALS____");
+
+	// conditionals test to see if a boolean expression is true
+	// here are some expressions and how they would evaluate
+	// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Comparison_Operators
+
+	true; 		// true
+	false; 		// false
+	1; 			// true
+	0; 			// false
+	-1; 		// true
+	10;			// true
+	5 > 2; 		// true
+	1 == 1; 	// true
+	1 != 1; 	// false (note the not equal to)
+	!false;		// true
+	!5			// false
+	5 <= 2;		// false
+	"a" == "b"; // false
+	"7" == 7;  	// true
+	"7" === 7;	// false (=== is the strict comparison operator to include the type of object)
+	1 == true;	// true (as in this case, boolean true is converted to 1)
+	3 == true;	// false (as in this case, boolean true is converted to 1)
+
+	// we use the if keyword followed by two round brackets ()
+	// what we are testing goes in the round brackets
+	// we then follow this with a block of code between curly brackets {}
+
+	// see if the value of variable test is equal to the number 1
+	// note that the comparison operator is ==
+	// we could say, if test equals one then output to the log
+	// but to be safe, lets say, if test double equals one then output to the log
+
+	var test = 1;
+
+	if (test == 1) {
+		console.log("we passed with a score of " + test);
+	}
+
+	// to do something else if the expression is not true then we use the else keyword
+
+	if (test > 10) {
+		console.log("amazing!");
+	} else {
+		console.log("oh well!");
+	}
+
+	// there is also an else if keyword pair
+	// let's change the value of test by re-asigning a new number
+
+	test = 7;
+
+	if (test > 10) {
+		console.log("amazing!");
+	} else if (test > 5) {
+		console.log("getting there");
+	} else {
+		console.log("try harder");
+	}
+
+	// the boolean expression can be a compound expression
+	// using && for AND and || for OR (pipe | is above the enter key)
+	// here test must be greater than 5 and and not equal to 10 to satisfy the condition
+	if (test > 5 && test != 10) {
+		console.log("between");
+	}
+
+	// here test must be equal to 3 or 7 to satisfy the condition
+	if (test==3 || test==7) {
+		console.log("some odd things");
+	}
+
+}
+
+
+function randomNumbers() {
+
+	console.log("____3. RANDOM NUMBERS____");
+
+	// a random number is a number from a range
+	// for instance, some number between 1 and 10
+	// it might be 8, 4, etc.  different each time
+	// it could also be 1.588950050099 so we have to be careful
+
+	// random numbers are what make the computer act like the real world
+	// when combined with conditionals, they are like odds in real life
+	// this combination is very very important in artificial intelligence and games
+
+	// we can get a random number directly from the JavaScript Math class
+	// we ask for its random() method which returns a random number from 0 to 1 but not including 1
+
+	console.log(Math.random()); // this number has many decimal places - for example 0.682033025789775
+
+	// here we use a conditional to write to the log half the time
+	if (Math.random() > .5) {
+		console.log("write to the log half the time");
+	}
+
+	// here we tell a secret if the random number is greater than .9 (only 10% of the time)
+
+	if (Math.random() > .9) {
+		console.log("tell the secret");
+	} else {
+		console.log("do not tell the secret");
+	}
+
+	// usually you do not need to convert the random number to anything else
+	// but you can - for instance, here we get a random number from 0 to 10 (not including 10)
+
+	console.log(Math.random()*10);
+
+	// if we do not want the decimals we have three choices
+
+	var noDecimals = 4.333;
+
+	console.log(noDecimals);
+	console.log("Math.floor() = " + Math.floor(noDecimals) ); // this simply removes the decimals
+	console.log("Math.round() = " + Math.round(noDecimals) ); // this rounds the number up or down
+	console.log("Math.ceil() = " + Math.ceil(noDecimals) ); // this rounds up to the nearest integer
+
+	// here we make sure the random number is an integer (no decimals)
+	// we should always Math.floor() random numbers to get equally proportioned chances
+	// for instance if we rounded, the first and last numbers
+	// would happen half as much as the middle numbers
+	// we should not Math.ceil() because there is a chance the first number is exactly 0
+	// so very very seldomly we could get 0 and most often we would get a bigger number
+	// but if we Math.floor() it works out perfectly the chance of getting any number is equal
+
+	var rand = Math.floor(Math.random()*10); // floor takes off the decimals
+	console.log("0-9 : " + rand);
+
+	// now, if we wanted a number from 1 to 10 including 1 and 10 we would do:
+	rand = Math.floor(Math.random()*10) + 1;
+	console.log("1-10 : " + rand);
+
+	// the next part gets a little advanced, so do not worry if it is too much!
+
+	// RANDOM RANGE
+	// what if we wanted our random number to start at a number other than 0 or 1
+	// so for instance, get a random number between 5 and 10 including 5 and 10
+	// here is what we do - we calculate the total numbers in the desired range
+	// so that would be 10 - 5 = 5 but if you check it could be 5,6,7,8,9,10
+	// that is actually 6 numbers because we included both the start and end of the range
+	// so if we want a random number between a and b
+	// we would say the possible numbers would be b-a+1
+	// so we take a random number from this by multiplying our answer times Math.random()
+	// we need to Math.floor() the random number
+	// in our example, that would give us either 0,1,2,3,4 or 5 but never 6
+	// note that 0,1,2,3,4,5 are indeed six numbers
+	// we then add the random number to the start number of the range - in our case 5
+	// this is good that our random number might be 0
+	// because some times we will get the first number in our range!
+	// and if our random number was the highest (5) then we would get 5+5 = 10
+	// and this is good because the highest number of our range is 10
+	// so the final formula would look like this:
+	// a + Math.floor(Math.random()*(b-a+1));
+
+	var a = 5;
+	var b = 10;
+	var range = a + Math.floor(Math.random()*(b-a+1));
+	console.log("random number between " + a + " and " + b + ": " + range);
+
+	// ***** we will see a shorter way to do this with ZIM
+
+}
+
+
+function functions() {
+
+	console.log("____4. FUNCTIONS____");
+
+	// a function stores a block of code that runs when the function is called
+	// this is handy because we can call the code whenever we want and any number of times
+	// it is also handy just to help organize code
+	// we define (declare) a function with the function keyword
+	// followed by our name for the function (same restrictions apply as in naming a variable)
+	// followed by two round brackets () these hold any optional parameters (more on this later)
+	// then we use two curly brackets {} which holds a block of code
+	// the block of code can be as long as you want
+	// the block of code can include any types of statements - including other functions
+	// when the function is called, the block of code will run
+
+	function myFunction() {
+		console.log("myFunction");
+	}
+
+	// here we call the function by using the function name and two round brackets ()
+
+	myFunction();
+
+	// here we call the function again (note in the console there is a red 2 next to the "myFunction")
+
+	myFunction();
+
+	// when we define a function like this, it gets "hoisted"
+	// to the top of the scope in which the function is defined
+	// don't worry too much about this yet
+	// but it means that we can actually call a function before it is defined
+
+	hoisted();
+
+	function hoisted() {
+		console.log("hoisted");
+	}
+
+	// we can also use the function operator to assign a function to a variable
+	// this function can be an anonymous function (with no name) or it can have a name
+	// most often, it is an anonymous function for brevity
+
+	var assignedFunction = function() {
+		console.log("assignedFunction");
+	}
+	assignedFunction();
+
+	// functions made this way are not hoisted but rather made during runtime
+	// anonymous functions can be handy as will be seen in the future ;-)
+
+}
+
+
+function advancedFunctions() {
+
+	console.log("____5. ADVANCED FUNCTIONS____");
+
+	// PARAMETERS
+
+	// you can pass information to a function when you call the function
+	// the function collects the information in parameters that you name
+	// you can specify any number of parameters - including no parameters
+	// you separate each parameter with a comma ,
+	// a parameter is like a variable that can be used inside the function
+	// we do not use var and the parameter can only be used inside the function
+	// the same naming rules as with variables apply for parameters
+	// when you call the function you send in the values for the parameters
+	// these go in the round brackets and match the order you used in the function
+
+	function parameters(name, age) {
+		console.log(name + " is " + age + " years old");
+	}
+	parameters("Samual", 27);
+
+
+	// you can set a default in most languages but with JavaScript we can't
+	// so you can use the typeof operator
+	// to see if a value has been defined (assigned) to the parameter
+	// if the value is undefined then you can give it a value
+
+	function defaultParameters(speed) {
+		if (typeof speed === 'undefined') {speed = 10;}
+		console.log("speed = " + speed);
+	}
+	defaultParameters();
+
+	// RETURN VALUE
+
+	// a function can return a value
+	// here we use the return keyword and then the value
+
+	function returnValue(name) {
+		return "hello " + name;
+	}
+	console.log (returnValue("Samantha"));
+
+	// here we make a function to calcate the area of a rectangle
+	// we can display the answer in the log
+	// or use the answer in another expression
+	// or compare the answer in a conditional
+	function getArea(w, h) {
+		return w*h;
+	}
+	console.log("5X5 area = " + getArea(5,5));
+	var volume = 6 * getArea(10,10);
+	console.log("volume = " + volume);
+	if (getArea(2,2) > 3) {
+		console.log("big enough!");
+	}
+
+	// functions in JavaScript are objects themselves and are termed First-class Functions
+	// so they can be assigned to variables, or passed as parameters
+	// more on this later when we explore object oriented programming
+
+}
+
+
+function scope() {
+
+	console.log("____6. SCOPE____");
+
+	// scope relates to the availability of a variable or function
+	// the broadest scope is the global scope
+	// with JavaScript in the browser, this is the document
+	// so if we declare a variable directly in a script tag we get a "global" variable
+	// note the variable called global defined just above the table of contents
+
+	function scopeCheck() {
+		console.log(global);
+		var inner = "function variable"
+	}
+	scopeCheck();
+
+	// we can see the global variable from within the function
+	// but the opposite is not true
+	// we can't see the inner variable from outside the function
+	// we call the inner variable a private variable
+	// or a variable with a scope of the scopeCheck function
+	// trying to access it from outside will give an error
+	//console.log(inner);
+
+	if (typeof inner == "undefined") {
+		console.log("no variable value for inner in this scope");
+	}
+
+	// so the scope of the var inner is the function scopeCheck
+	// we can access inner only from within the function
+	// when you nest functions you set up a scope chain from inner to outer
+
+	// if you leave the var off when you assign a new variable
+	// then JavaScript will look up the scope chain for that variable
+	// if it finds a variable of the same name it will reasign the value
+	// if it does not then it will make a global variable and assign it the value
+	// this is not considered good practice as it can polute the global scope
+	// variables from different scripts could overwrite one another, etc.
+	// scope can get complicated and we deal with it more in future lessons
+
+	function noVar() {
+		badVar = "NOOOO";
+		var goodVar = "YESSS";
+		console.log(goodVar);
+	}
+	noVar();
+
+	console.log(badVar);
+
+	// we will look at more advanced scope when we look at Object Oriented Programming
+
+}
+
+function loops() {
+
+	console.log("____7. LOOPS____");
+
+	// a loop lets you repeat a block of code
+	// usually if we want to do the same thing 3 or more times we use a loop
+	// there are a few different types of loops, the most popular is the for loop
+	// with a for loop you get an iterator which increments each time the loop runs
+	// in other words, you get a variable that increases by 1 each time the loop runs
+	// an iterator is a variable that we use to keep count
+	// for example: the var i might start at 0 then go to 1 then 2 then 3, etc.
+	// in actual fact, you can also make it decrease each time
+	// or increase or decrease by 2 or by 3, etc, each time
+	// just some information about increasing and decreasing numbers:
+
+	var i = 0; 	console.log(i); // will show 0
+	i = 1; 		console.log(i); // will show 1
+	i = i + 1; 	console.log(i); // will show 2 : i was 1 and we add 1 to 1 to get 2 and assign it back to i
+	i += 1;		console.log(i); // will show 3 : += adds the right side to the left side
+	i += 3;		console.log(i); // will show 6
+	i -= 3;		console.log(i); // will show 3 : -= subtracts from itself (also a *= and /=)
+	i++;		console.log(i); // will show 4 : ++ is a shortform for add one to itself
+	i--;		console.log(i);	// will show 3 : -- is a shoreform for subtracting 1 from itself
+
+	console.log("careful with ++ operator");
+	var careful = i++;
+	console.log(i); // will show 4 because i has increased
+	console.log(careful); // will show 3 because the assignment happened before the increase
+
+	careful = ++i;
+	console.log(i); // will show 5 because i has increased
+	console.log(careful); // will show 5 because the assignment happened after the increase
+
+	// syntax of for loop:
+	// you use the for keyword followed by two round brackets
+	// in the round brackets there are three parts
+	// you specify the iterator variable and its starting value: var i=0;
+	// you then specify the condition to keep looping: i<10;
+	// finally, you specify what to do after each loop: i++
+	// you DO NOT put a semicolon ; after the last one in the round brackets
+	// after the round brackets, you put your block inside curly brackets {}
+	// this block of code can be as many statements as you want
+	// the block of code can also include more loops, functions, etc.
+
+	// by convention, we use i as the first iterator in a loop
+	// if we have a loop within a loop we use j and then k (usually no more nesting is required)
+	// we have already declared var i above
+	// but just so you can see how it usually looks - I will redeclare var i here:
+	// we would not have had to, we could have just used i=0; etc.
+	// re-declaring a var should generally be avoided as it is redundant
+	// but there is no harm in JavaScript to declare again - in Flash you would get a warning
+
+	console.log("let's do a loop from 0 to 4"); // if we used i<=5; then it would go to 5
+
+	for (var i=0; i<5; i++) {
+		console.log(i);
+	}
+
+	// the loop will run as long as the condition is true
+	// so above, i starts at 0 and is increased every time the block of code runs
+	// when i is 4, the block of code runs and the value of 4 is output to the log
+	// then i is increased to 5 and because i is now not less than 5 (it is 5)
+	// the loop stops and the code continues on from just after the loop (here)
+	// you can use the break; statement inside a loop to stop the loop
+	// for instance try adding if (i>2) {break;} to your loop and see what happens
+	// you can also use the continue; statement to skip to the next iteration
+	// if you added if (i==3) {continue;} to just before your console.log(i)
+	// then the output would be 0, 1, 2, 4
+	// continue; does not stop the loop, only ignore everything after it for that iteration
+
+
+	// syntax of while loop
+	// use the while keyword followed by two round brackets ()
+	// inside the round brackets goes the conditional for looping
+	// after the round brackets comes two curly brackets {} with our block of code
+	// the loop checks the condition and if true, runs the block of code
+	// the loop goes to the top again and checks the conditional, etc.
+	// if the conditional is false, the code goes to after the loop
+
+	var count = 0;
+	while (count < 0) {
+		console.log("while loop: " + count);
+		count++;
+	}
+
+	// there is also a do... while... loop which is almost the same as a while loop
+	// the do while loop runs the block of code first and then checks the condition
+	// there is also a for... in... loop which loops through properties of an object
+	// we will look at that later when we study object oriented programming
+
+	// LOOP WITH A LOOP
+	// here is an example of a loop within a loop
+	// you might set up a grid of thumbnails this way - or a chessboard
+
+	for (var i=0; i<3; i++) {
+		for (var j=0; j<3; j++) {
+			console.log("outer=" + i + " inner=" + j);
+		}
+	}
+
+	// advanced information ;-) so do not worry about this if everything is overwhelming!
+	// there is a cool operator called the modulus %
+	// the modulus can usually replace the need for nested loops
+	// the modulus returns the remainder of a division of two numbers
+
+	console.log("modulus");
+	console.log( 9 % 3 ); // remainder is 0 as in 9/3 is exactly 3 with 0 left over (remainder)
+	console.log( 10 % 3 ); // remainder is 1 as in 10/3 is equal to 9 with 1 left over
+	console.log( 11 % 3 ); // remainder is 2
+	console.log( 12 % 3 ); // remainder is 0
+	console.log( 13 % 3 ); // remainder is 1 etc.
+
+	// if the first number is less than the second number, it returns the first number
+
+	console.log("modulus again");
+	console.log( 0%3 ); // remainder is 0
+	console.log( 1%3 ); // remainder is 1
+	console.log( 2%3 ); // remainder is 2
+	console.log( 3%3 ); // remainder is 0
+	console.log( 4%3 ); // remainder is 1 etc.
+
+	// note that this looks like the inner pattern (j) in the log output of our nested loop
+	// we can get the outer pattern (i) in our nested loop by using Math.floor()
+
+	console.log("floor pattern");
+	console.log( Math.floor(0/3) ); // remainder is 0
+	console.log( Math.floor(1/3) ); // remainder is 0
+	console.log( Math.floor(2/3) ); // remainder is 0
+	console.log( Math.floor(3/3) ); // remainder is 1
+	console.log( Math.floor(4/3) ); // remainder is 1 etc.
+
+	// so we can do the same thing as our nested loop using Math.floor() and the modulus
+
+	var outer; var inner;
+	for (var i=0; i<3*3; i++) {
+		outer = Math.floor(i/3);
+		inner = i%3;
+		console.log("outer=" + outer + " inner=" + inner);
+	}
+
+}
+
+function arrays() {
+
+	console.log("____8. ARRAYS____");
+
+	// an array is like a list
+	// you access the elements of the array by an index number starting at 0
+
+	var animals = ["dog", "cat", "sheep", "donkey"];
+
+	console.log(animals[0]);
+	console.log(animals[3]);
+
+	// each element is then like a variable - a container
+	// you can get and set its value using the index number
+
+	animals[2] = "lion";
+	if (animals[2] == "lion") {
+		console.log("roar");
+	}
+
+	// we can get the length of an array using the length property (with dot syntax)
+	// note - the array has a length of 4 but its last index is always one less so 3
+
+	console.log(animals.length);
+
+	// You can manipulate an array using a variety of methods
+
+	animals.push("monkey"); // adds an element to the end of the array
+	// if we just logged animals - it would show the result of all of our changes
+	// because the log does not block operation and is a little slower than real time
+	// don't worry too much about this at the moment - hardly ever comes up
+	// we can get around this by joining the array into a string to display
+	console.log("push() - " + animals.join());
+
+	animals.pop(); // removes an element from the end of the array (no more monkey!)
+	console.log("pop() - " + animals.join());
+
+	animals.unshift("bear"); // adds an element to the start of the array
+	console.log("unshift() - " + animals.join());
+
+	animals.shift(); // removes an element from the start of the array (no more bear!)
+	console.log("shift() - " + animals.join());
+
+	animals.sort(); // sorts an array
+	console.log("sort() - " + animals.join());
+
+	// reset the array
+	animals = ["dog", "cat", "sheep", "donkey"];
+	console.log(animals.join());
+
+	var num = animals.indexOf("sheep") // finds the index of the first occurence in the array
+	console.log("sheep index (count starts at 0) = " + num); // 2
+
+	animals.splice(num,1); // takes sheep out of the array (splice can do more than this!)
+	console.log("splice() - " + animals.join());
+
+	// reset the array
+	animals = ["dog", "cat", "sheep", "donkey"];
+
+	var someAnimals = animals.slice(1,3); // copies from index 1 up to but not including index 3
+	console.log("slice() - " + animals.join()); // original array stays the same
+	console.log("slice() - " + someAnimals.join()); // the second and third elements copied into a new array
+
+	// To make an array out of a string you can use the split() method
+
+	var list = "butter,eggs,milk,sugar";
+	var arr = list.split(",");
+	console.log(arr.join());
+	console.log("third element of new array: " + arr[2]);
+
+	// looping through an array
+	// arrays and loops work very well together
+	// because we can increase and index number with loops
+	// and index numbers are used to access the elements of the array
+
+	for (var i=0; i<arr.length; i++) {
+		console.log(arr[i]);
+	}
+
+	// if we want 100 monsters, we could loop 100 times and make a monster each time
+	// and we wanted to see if any of them were hitting our player
+	// we could loop through all the monsters, and check each one
+
+	// MULTIDIMENSIONAL ARRAYS (NESTED ARRAYS) (ARRAYS IN ARRAYS)
+	// you can store an array as an element of another array
+	// there is no limit to how many arrays you store within arrays (aside from computer memory)
+
+	var nested = [["red", "green", "blue"], ["black", "orange"], ["white", "purple", "yellow"]];
+
+	// the outer array has three elements
+	// each element is an array
+	// this could be a list of flags with their flag colors
+	// we use the array access operator [] to get each level
+	// the first time we use [] it is for the outer array
+	// each time we use [] it goes one more level deep
+	// remember, the index numbers start at 0
+
+	console.log("first flag's second color: " + nested[0][1]);
+	console.log("third flag's first color: " + nested[2][0]);
+
+	// RANDOM ELEMENT OF AN ARRAY
+
+	// in the random number section of page we saw we can get a random number like so:
+
+	var randomIndex = Math.floor(Math.random()*10);
+	console.log (randomIndex); // random number 0-9 (not 10)
+
+	// this is perfect for getting a random element of an array
+	// for instance, if the length of the array is 10 then the index numbers are 0-9 - see!
+	// so here is an example - we just replace 10 above with the length of the array
+
+	var emotions = ["sad", "happy", "mad", "dazed"];
+	randomIndex = Math.floor(Math.random()*emotions.length); // 0,1,2,3
+	var emotion = emotions[randomIndex];
+	console.log("your random emotion is " + emotion);
+
+	// or all at once:
+
+	console.log ( "his random emotion is " + emotions[Math.floor(Math.random()*emotions.length)] );
+
+	// ***** we will see a shorter way with ZIM
+
+	// COPYING AN ARRAY
+	// be careful when you try and copy an array
+
+	var first = [1,2,3];
+	var second = first;
+	second[0] = 5;
+	console.log("second[0] = " + second[0] + " first[0] = " + first[0]);
+
+	// see what happened, second is just a reference to the first array
+	// so if you change second, it is actually changing first
+	// if you want to make a copy of an array you can use the slice() method
+
+	// reset first
+	first = [1,2,3];
+	second = first.slice(); // this just assigns a real copy of the whole array
+	second[0] = 5;
+	console.log("second[0] = " + second[0] + " first[0] = " + first[0]);
+
+}
+
+function objects() {
+
+	console.log("____9. OBJECTS____");
+
+	// objects are a holder for properties (variables) and methods (functions)
+	// they represent things like a person, car, date, book, movie, etc.
+	// objects can be very complex
+	// for instance, the document object in a browser window has lots of properties and methods
+	// and you saw that the array object had lots of methods - but only one property - its length
+	// we can make our own custom objects like so:
+
+	var obj = {};
+
+	// there - that was pretty simple
+	// we can add properties to it like so:
+
+	obj.property = "value";
+	console.log("object property = " + obj.property);
+
+	// or we can add the properties as we create the object
+
+	var person = {age:24, location:"Dundas"};
+	console.log("person age = " + person.age + " lives in " + person.location);
+
+	// we will make more complex objects in future lessons
+	// for now, we will use objects as a way to store data
+
+	// in many programming languages there are arrays called associative arrays
+	// they are called this because a property name is associated with a value
+	// in object oriented languages, this is just an object
+	// so our objects can be thought of as associative arrays
+
+	// here is an linear array of songs objects
+
+	var songs = [
+		{title:"Hey!", artist:"The Gruesomes", category:"Garage"},
+		{title:"Gorgolon", artist:"Thee Gnostics", category:"Space Rock"},
+		{title:"My Generation", artist:"The Who", category:"Mod"}
+	];
+
+	console.log("Song title = " + songs[2].title);
+
+	// note we can use the dot syntax to get the property
+	// we can also use the array access operator [] to get a property
+	// we use the string version of the property name inside the []
+
+	console.log("Song category = " + songs[2]["category"]);
+
+	// be careful when you try and copy an object
+
+	var first = {a:1, b:2, c:3};
+	var second = first;
+	second["a"] = 5;
+
+	console.log("second.a = " + second.a + " first.a = " + first.a);
+
+	// see what happened, second is just a reference to the first object
+	// so if you change second, it is actually changing first
+	// there may be a way to do it with new typed array specifications and binary
+	// but for now, we can just use a special loop for looping through objects
+
+	// reset first
+	first = {a:1, b:2, c:3};
+
+	// FOR... IN LOOP
+	// use the for keyword but in the round brackets () use variable in object
+	// each time it loops the variable will be one of the property names of the object
+	// the loop finishes when the object has no more properties
+	// note - the variable becomes the string name of the property
+	// so to access the values, we would use object[variable]
+
+	for (var p in first) {
+		console.log("property name = " + p + " property value = " + first[p]);
+	}
+
+	// so now, let's copy the object to second
+	// start off with an empty object
+
+	second = {};
+	for (p in first) {
+		second[p] = first[p];
+	}
+
+	// now let's do a change to second like we did before:
+	second["a"] = 5;
+
+	console.log("second.a = " + second.a + " first.a = " + first.a);
+
+	// REFERENCES
+
+	// An object is just that, one single object
+	// Often we refer to the object from different places
+	// But if we make a change from any of these places, it is still changing the same single object
+	// We call these different places "references" or "pointers"
+
+	var a = {x:10};
+	var b = a;
+	a.x = 20; // will also mean that b.x is 20
+	console.log("objects are referenced: " + a.x);
+
+	// Primatives (numbers and strings) are different
+	// they are copied rather than kept as a single object
+
+	var a = 7;
+	var b = a;
+	a = 10; // now a is equal to 10 but b is still equal to 7
+	console.log("primatives are copied: " + a + " " + b);
+
+
+}
+
+function animation() {
+
+	console.log("____10. ANIMATION____");
+
+	// here we call the animate function defined below
+	// we pass the function the object we want to animate
+	// and what horizontal position to go to in pixels (400)
+	// and how many pixels it will move each step (5)
+	// uncomment below to activate or comment to deactivate
+
+	animate(zss("logo"), 400, 5);
+
+	function animate(obj, x, step) {
+		// this function collects an object (obj)
+		// to animate to a horizontal position (x) in pixels
+		// and move a number of pixels each step (step)
+
+		console.log("animate");
+
+		// animation is just moving something over time
+		// to do something over time we use a setInterval function
+		// setInterval(function, delay in ms)
+		// this runs the function after every delay
+		// we also store an identifier for the interval
+		// so we can stop the interval when the animation is done
+		var interval = setInterval(doAnimation, 10);
+		function doAnimation() {
+			// style.left will return a string like 100px
+			// we have to take the px off the end and convert to a number
+			// which we store in a variable called left
+			// ***** this is slightly advanced code and we will show an easier way with ZIM later
+			var left = Number(String(obj.style.left).replace(/[^\d\.\-]/g, ''));
+			// we check to see if we are closer than the step distance
+			// if we are then we set the left to the final desired x value
+			if (Math.abs(left-x) <= step) {
+				left = x;
+			} else if (left < x) {
+				left += step; // or we add step pixels to our position
+			} else if (left > x){
+				left -= step; // or we subtract step pixels from our position
+			}
+			// finally, we set the style of our object to the new value
+			obj.style.left = left+"px";
+			// if we are at the destination x then we are done
+			// so we clear the interval and it will stop running
+			if (left == x) {
+				console.log("done");
+				clearInterval(interval);
+			}
+		}
+	}
+}
+
+</script>
+
+
+<footer>
+Mini Site - Programming Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+
+</body>
+</html>

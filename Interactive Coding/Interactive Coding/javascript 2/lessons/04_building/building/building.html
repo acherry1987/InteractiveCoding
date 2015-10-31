@@ -1,0 +1,1325 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>JavaScript Building Basics</title>
+<link href="building.css" rel="stylesheet" type="text/css" />
+
+<!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
+<!-- see http://zimjs.com/templates for more templates and meta tags -->
+
+<script>var zon = true; // true for comments from zim code</script>
+<script src="../../../code/zim_1.4.4.js"></script>
+<script src="../../../code/createjs-2015.05.21.min.js"></script> 
+<!-- should use CDN links available from CreateJS and ZIM sites -->
+
+<style>
+	body {margin:0px; padding:0px; background-color:#000;}
+	#myCanvas {position:absolute; background-color:#FFF;}
+</style>
+
+<script>
+
+// SCALING OPTIONS
+// "none"		sets canvas and stage to dimensions and does not scale if window changes
+// "fit"		sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"		sets canvas and stage to window size (canvas is actually set to screen size)
+
+var scaling = "fit"; // full automatically sets width and height to window size
+var width = 960;
+var height = 640;
+var frame = new zim.Frame(scaling, width, height); 
+frame.on("ready", function() {	
+	zog("ready from ZIM Frame - Load");
+	
+
+    /*
+    
+        BUILDING BASICS
+    
+    
+        0. PLANNING
+        In general, you come up with an idea (or are given one)
+        You then sketch out what the app will look and work like on paper
+        Best in a sketch book with pencil and eraser
+        You might prepare (make and collect) some assets like images, sounds, text (copy)
+        Then you come into your coding tool and start to work - that's here and now.
+    
+        1. GETTING STARTED
+    
+        Many of the applications we will make and almost all mobile applications will use the full window
+        On the Web, full screen is different than full window - on mobile it is roughly the same
+        The trick I have found is to set the canvas to a certain size and plan all your assets to that size
+        Then scale the canvas to FIT in the window dimensions
+        If the window is too wide, then maximize the height and center the canvas on the width
+        If the window is too high, then maximize the width and center the canvas on the height
+        This technique will get you by for 95% of your applications and the other 5% worry about later
+    
+    
+        2. TEMPLATE
+    
+        See the Template example for the code that sets up CreateJS to FIT in a window
+        ZIM Frame sets up the canvas and handles scaling
+        There are different types of templates at ZIM and we will see a variety in the future
+        
+    
+        3. WHAT TO BUILD FIRST
+    
+        This really depends on your application and your mood - there is no right answer
+        What I usually do is build the main part of the app first
+        The main part of the app, usually is the hardest and takes the longest
+        You want to know that this will work before you put any effort in the rest of the app
+        You also want a clear path to develop and test the main part
+        So do not build your intro screen first and have to wait for animation and click through
+        every time you want to get to the main part of your app - make the main part first
+        Add things like your intro, help and about screens, conclusions, last
+    
+    
+        4. BUILDING THE MAIN PART
+    
+        A. Efficiencies
+    
+        Once again, this can vary with different apps but here is some advice
+        You want to make testing as easy as you can without waiting
+        So do not load large assets at the start - leave your sound until last
+        If you have to preload graphics... you do not need to use them at the start
+        You can just draw some shapes and use those as placeholders
+        Add the preloading and graphics at the end
+        Now... if you need the graphics to get the mood to see if the app works
+        then that is another matter - say for a comic strip maker you need the backgrounds, etc.
+        So - suit yourself - just remember, you have the option to use placeholders
+        I find that substituting the final graphics at the end just takes a few minutes
+        Same with animations - test them and then turn them off or greatly shorten them
+        You test an application hundreds if not thousands of times so be efficient
+    
+    
+        B. Steps
+    
+        Often in the main part of an application, one thing leads to another - steps
+        Probably start with what comes first
+        If you press a button before things show - make the button
+        Sometimes there are several parts that can work independently - just choose one 
+        Programming is a bunch of little parts - functions that grow and work together
+        I build one part at a time - what else can you do?
+        A part is usually a function and an event is usually what calls the function
+        Within the event function, we sometimes call other functions
+        The reason for calling other functions are:
+    
+        1. the code will be used by more than one function (consolidating - or abstracting)
+        2. the code is more than say 10 lines, does something specific and you want to organize
+    
+        Inside the main function you will most likely set up the assets
+        Define the assets and their starting properties
+        Many of the values of these properties might be stored in variables up top
+        This makes it easier to adjust later - we call these initial conditions
+        Examples, are widths and heights, speeds, spacings, counts, totals, positions, etc.
+        We do not build these to start - we just keep adding them up top as we build
+    
+        So start by making the main asset of your application
+        If it is simple like a background - then just make it
+        If it involves many steps then consider putting the steps in a function
+        Call the function makePart:
+    
+        var myPart;
+    
+        makePart();
+    
+        function makePart() {
+            // do steps
+            myPart = new createJS.Container(); // or whatever
+        }
+    
+        Here is what two parts would look like - note the organization
+        We have also added an event and an event function
+        By declaring the part outside the function we can access it in other functions
+    
+        var myPart1;
+        var myPart2;
+    
+        makePart1();
+        makePart2();
+    
+        function makePart2() {
+            // do steps
+            myPart2 = new createJS.Container(); // or whatever
+            myPart1.addChild(myPart2); // example of why we declare parts outside function
+            myPart2.on("click", eventFunction);
+        }
+    
+        function eventFunction(e) {
+            // could put this function inside makePart2
+            // but sometimes we want to share event functions
+            // also, if the function is big, I prefer to align rather than nest
+            // nesting them means more brackets in brackets, etc. and can get confusing
+            // I do tend to nest event functions if they are smaller functions such as:
+            e.target.on("mouseup" function() {
+                myPart2.alpha = .5;
+            });
+        }
+    
+        function makePart1() {
+            // note that makePart1 moves to below makePart2
+            // this is a matter of choice - I prefer to work near the top of the script
+            // that way I am closer to where I set up initial conditions for the part
+            // I also know that the things I coded earlier are down below
+            // you tend to work more on the more recent code so I stack it on top
+    
+            // do steps
+            myPart1 = new createJS.Container(); // or whatever
+        }
+    
+    
+        C. Nesting
+    
+        In general, try and only "expose" your main parts ;-)
+        Any sub parts can be accessed as a property of the main part
+        This helps keep things simple and organized
+        For instance, say you have three panels each with a textField
+        do not declare
+    
+        var panel1;
+        var panel2;
+        var panel3;
+        var textField1;
+        var textField2;
+        var textField3;
+    
+        just declare the panels and then store a textField property on each one
+        if the textField is in the panel, then it is a property of the panel
+    
+        panel1.textField = new createjs.Text();  // etc. for other panels
+    
+    
+        D. Collections and Containers
+    
+        Often we have multiple number of the same type of objects
+        For instance: 10 monsters, 20 thumbnails, 5 buttons
+    
+        It is always a good idea to put these and only these into a holder
+    
+        var monsters = new createjs.Container();
+    
+        This gives us two advantages:
+    
+        1. we can operate on the collection in one place
+            monsters.on("click", roar); or
+            monsters.alpha = 0; or
+            removeChild(monsters);
+    
+        2. we can loop through all of the objects in the collection
+            var monster;
+            for (var i=0; i<monsters.getNumChildren(); i++) {
+                monster = monsters.getChildAt(i);
+                // do something with the monter
+            }
+            // the loop can be used to process all the objects in the collection
+            // for instance, to move or animate or do a hitTest on something
+    
+        These two techniques are very powerful and we use them often
+        Note that with these techniques, we do not need variables for the objects
+        In the loop, we can get an object using getChildAt()
+        If we are processing the event - such as monsters.on("click" roar)
+        We can use e.target to get us the specific object that was clicked:
+    
+        function roar(e) {
+            var monster = e.target;	// gives us the specific monster that was clicked
+        }
+    
+    
+        5. DEBUGGING
+    
+        If something does not show up then make sure you addChild() and stage.update()
+        If it still does not show - make sure you do not have an error
+        Also, make sure you are working in the right file
+        Just put a zog("hello"); just before your code to make sure JavaScript gets there
+        Perhaps your function name had a typo - or maybe you did not call your function
+    
+        An important technique in debugging is to simplify
+        Test one step at a time and if need-be zog() your steps
+        If you write lots of lines of code and then test
+        it is sometimes hard to know what part of the code is not working - so test often
+    
+        Make sure that what you are doing works in a "hard coded" case
+        before you get fancy and put the code in a loop or use some sort of dynamic targeting
+    
+    
+        6. FINISHING
+    
+        Once you have made the main part of the application there will be more to do:
+    
+        A. Information Screens
+    
+        Most likely there are other screens for intro, help or about
+        I like to combine these three screens into one if I can
+        But in many cases, they might have to be separate
+    
+        To make a screen, make a container and fill it with a background shape
+        Put Bitmaps and Text objects in the container and perhaps a close button
+        Then when you want to show the screen stage.addChild(screen);
+        When you are done with the screen stage.removeChild(screen);
+    
+        B. Alerts
+    
+        Often when we build, we need to tell the user information to help them use the app
+        This is usually done with an alert box or panel (pane) that pops up over the application
+        These are usually "modal" which means, the user must deal with the alert before continuing
+        They panel can have a close button or you can click off - in some cases it may be timed
+        Sometimes there is an alert area instead of a pop up
+        These things can usually be programmed after most of the content
+    
+        Making an alert is similar to making a screen
+        You can add a rectangle the size of the stage and make it alpha = 0
+        Put a click event on the rectangle that does nothing - or closes the alert
+        This way users cannot do anything but clear the alert
+    
+        C. Restarting
+    
+        If you have a game or an experience, you often want to let the user restart
+        This should be a function so it can be called from multiple places
+        like at the end or with a button
+        You could refresh the page but this is not an ideal user experience
+        So, I usually make the time to reset all the properties
+        A way to do this is to remove the various parts and then call the make functions again
+        which is why it is good to have make functions
+    
+    
+        7. BUILD PATTERNS
+    
+        Aside from custom objects, physics, 3D, and data
+        here are some common things we do when we build
+    
+        1. Collections
+        2. Snapping
+        3. Sliders and Proportion
+        4. Damping
+        5. Tiling
+        6. Scroller
+        7. Parallax
+        8. Buttons and Panes
+        9. Progress Bar
+    
+    */
+    
+	var stage = frame.stage;
+	var stageW = frame.width;
+	var stageH = frame.height;
+	
+	/* this code is for the preloader
+	// make a progress indicator
+	makeProgress();
+	// handle asset loading and call main app function when complete
+	var contentPath = "content/";
+	var manifest = [{src:"zim_promo.jpg", id:"promo"},{src:"welcome.mp3", id:"welcome"}]; // array of objects
+	var preload = new createjs.LoadQueue(false, contentPath); // use true if on the same server	
+	preload.installPlugin(createjs.Sound); // sound requires this plugin call (comment out if no sound)
+	preload.on("progress", animateProgress); // this will update the progress (optional)
+	preload.on("complete", building);	 // call the main code when ready	
+	preload.loadManifest(manifest);
+	var waiter = new zim.Waiter(stage);
+	waiter.show();
+	*/
+
+    building(); // comment this out when you have preload going
+    
+    
+    function makeProgress() {
+    
+        progress = new createjs.Container();
+        // more code in here to make bar or text or whatever, etc.
+        // we do not animate the progress here - we do that in preloadProgress()
+        stage.addChild(progress);
+        stage.update();
+    
+    }
+    
+    function animateProgress(e) {
+
+        // zog("progress " + e.target.progress);
+        // this event runs quite quickly and often
+        // e.target is the preload object in this case
+        // the progress property gives a number from 0-1 representing progress
+        // in percent we would multiply by 100
+        // we would operate on the progress object we established in makeProgress()
+    
+    }
+	
+    
+    function building() {
+    
+        zog("hi from building"); // change appName to the name of your app
+    
+        var squareW = 120;
+        var squareH = 90;
+        var squareS = 20;
+        var title = makeTitle();
+    
+        collections();
+        //snapping();
+        //slidersAndProportion();
+        //damping();
+        //tiling();
+        //scroller();
+        //scroller2();
+        //parallax();
+        //parallax2();
+        //buttonsAndPanes();
+        //buttonsAndPanes2();
+        //progressBar();
+    
+    
+        function collections() {
+    
+            // collections are a set of the same thing
+            // we put the things inside a container - sometimes called a holder
+            // but if the things are books, call the collection books, etc.
+            // we can then loop through the children of the holder
+            // we can also put events right on the collection
+            // use e.target to access the object in the collection that is activating the event
+            // use e.currentTarget to access the collection that is activating the event
+            // only put one type of thing in a collection
+            // for instance, do not put 10 balls and then a button
+    
+            // make a set of tiles
+            // fade any tile that is clicked on
+            // animate the tile back to full alpha
+            // could have done with tweens
+            // just wanted to show how to loop through children
+            // without making the example too complicated...
+    
+            zog("____1. COLLECTIONS ____");
+            title.text = "Collections";
+    
+            var alphaSpeed = .01;
+    
+            tiles = makeTiles(6);
+            tiles.cursor = "pointer";
+            tiles.x = (stageW-tiles.getBounds().width)/2;
+            tiles.y = 100;
+            stage.addChild(tiles);
+            stage.update();
+    
+            tiles.on("click", function(e) {
+                e.target.alpha = .5;
+                stage.update();
+            });
+    
+            var timer = createjs.Ticker.on("tick", function() {
+                // loop through the children of the tiles
+                // and animate each one individually if necessary
+                // can use this technique for hitTest too
+                // to see if a ball is hitting any of the tiles for instance
+                var tile;
+                for (var i=0; i<tiles.getNumChildren(); i++) {
+                    tile = tiles.getChildAt(i);
+                    if (tile.alpha < 1) {
+                        tile.alpha+=alphaSpeed;
+                    }
+                }
+                stage.update();
+            });
+    
+        }
+    
+    
+        function makeTiles(num) {
+            if (typeof num === 'undefined') {num = 1;}
+            var tiles = new createjs.Container();
+            var tile; var g;
+            for (var i=0; i<num; i++) {
+                tile = new createjs.Shape();
+                g = tile.graphics;
+                g.beginStroke("white").setStrokeStyle(2).beginFill("#000");
+                g.drawRoundRect(0, 0, squareW, squareH, 20);
+                g.beginFill("#FFF"); // outer circle
+                g.drawCircle(squareW/2, squareH/2, squareH/2*.8);
+                g.beginFill("#000"); // inner circle
+                g.drawCircle(squareW/2, squareH/2, squareH/2*.5);
+                tile.regX = squareW/2; // just makes snapping a little easier
+                tile.regY = squareH/2; // because we can use the registration point to test on
+                tile.x = i*(squareW+squareS) + tile.regX;
+                tile.y = tile.regY;
+                tile.setBounds(0, 0, squareW, squareH); // for future hitTests
+                tiles.addChild(tile);
+            }
+            return tiles;
+        }
+    
+    
+    
+        function snapping() {
+    
+            // make two sets of tiles
+            // can drag tiles from first set to snap onto tiles on second set
+    
+            zog("____2. SNAPPING ____");
+            title.text = "Snapping";
+    
+            var tiles1 = makeTiles(2);
+            tiles1.cursor = "pointer";
+            tiles1.x = 100;
+            tiles1.y = 100;
+            stage.addChild(tiles1);
+    
+            // record the starting position for the tiles:
+            // using the collection procedure
+            var tile;
+            for (var i=0; i<tiles1.getNumChildren(); i++) {
+                tile = tiles1.getChildAt(i);
+                // record startX and startY properties on the tiles themselves
+                tile.startX = tile.x;
+                tile.startY = tile.y;
+            }
+    
+            var tiles2 = makeTiles(2);
+            tiles2.alpha = .2;
+            tiles2.x = 100;
+            tiles2.y = 300;
+            stage.addChildAt(tiles2, 0);
+    
+            stage.update();
+    
+            zim.drag(tiles1);
+    
+            tiles1.on("mousedown", function(e) {
+                // bring selected tile to the top
+                e.currentTarget.addChild(e.target);
+            });
+    
+            tiles1.on("pressup", function(e) {
+    
+                var tile; var hitCheck;
+                var tileConvertX; var tileConvertY;
+                for (var i=0; i<tiles2.getNumChildren(); i++) {
+                    tile = tiles2.getChildAt(i);
+                    // check to see if dropped tile is hitting the center of the tiles
+                    // if we just check the bounds for hitting it is weird when we drop in the middle
+                    // but to the right because it snaps to the left
+                    if (zim.hitTestReg(e.target, tile)) {
+                        hitCheck = true;
+                        break; // exit loop with tile being what is hit
+                    }
+                }
+    
+                var newX; var newY;
+                if (hitCheck) {
+                    newX = tiles2.x + tile.x - tiles1.x;
+                    newY = tiles2.y + tile.y  -tiles1.y;
+                } else {
+                    newX = e.target.startX;
+                    newY = e.target.startY;
+                }
+    
+                // just a convenience wrapper for a simple quad tween
+                // object, x, y and time in miliseconds
+                // or you can do it yourself - don't forget the ticker and to clear the ticker
+                zim.move(e.target, newX, newY, 200);
+    
+            });
+        }
+    
+    
+        function slidersAndProportion() {
+    
+            // here we make a slider with a knob on a bar
+            // as we move the slider, we change the scale of a tile
+            // we could change a volume or brightness, etc.
+            // the idea is that we proportionally apply a value
+            // so if the slider is at its minumum, so is the value
+            // when the slider is half way, so is the value
+            // when the slider is at its maximum, so is the value
+            // this does not have to be a slider
+            // we could use the mouse position
+            // when the mouse is at the top, it is dark
+            // when the mouse is in the middle, it is grey
+            // when the mouse is at the bottom, it is light, etc.
+    
+            zog("____3. SLIDERS AND PROPORTION ____");
+            title.text = "Sliders and Proportion";
+    
+            var tile = makeTiles();
+            tile.regX = tile.getChildAt(0).getBounds().width/2;
+            tile.regY = tile.getChildAt(0).getBounds().height/2;
+            tile.x = stageW/2;
+            tile.y = stageH/2;
+            stage.addChild(tile);
+    
+            var slider = new createjs.Container();
+            slider.x = 100; slider.y = 100;
+            stage.addChild(slider);
+    
+            var bar = new createjs.Shape();
+            bar.width = 300;
+            bar.graphics.f("#000").dr(0,0,bar.width,3);
+            slider.addChild(bar);
+    
+            var knob = new createjs.Shape();
+            knob.graphics.f("#933").rr(0,0,40,60,10);
+            knob.regX = 20;
+            knob.regY = 30;
+            knob.cursor = "pointer";
+            slider.addChild(knob);
+    
+            var diffX, diffY;
+            slider.on("mousedown", function(e) {
+                diffX = e.stageX - e.target.x;
+                diffY = e.stageY - e.target.y;
+            });
+    
+            // used for the proportion equation
+            var baseMin = 0;
+            var baseMax = bar.width;
+            var targetMin = 1;
+            var targetMax = 3;
+            var baseAmount;
+            var targetAmount;
+    
+            slider.on("pressmove", function(e) {
+                e.target.x = e.stageX-diffX;
+                if (e.target.x < 0) {
+                    e.target.x = 0;
+                } else if (e.target.x > bar.width) {
+                    e.target.x = bar.width;
+                }
+    
+                // proportion equation
+                // base is your interface (slider)
+                // target is what you are wanting to change (tile)
+    
+                baseAmount = e.target.x; // e.target has nothing to do with the target we are changing
+    
+                // proportion equation is
+                // (targetAmount-targetMin) / (targetMax-targetMin) == (baseAmount-baseMin) / (baseMax-baseMin)
+                // so to get the targetAmount, we multiply both sides by (targetMax-targetMin)
+                // we then add the targetMin to both sides and we get:
+    
+                targetAmount = targetMin + (baseAmount-baseMin) / (baseMax-baseMin) * (targetMax-targetMin);
+                tile.scaleX = targetAmount;
+                tile.scaleY = targetAmount;
+                stage.update();
+            });
+    
+    
+            // or handle some more of this with zim
+    
+            var slider2 = new createjs.Container();
+            slider2.x = 100; slider2.y = 550;
+            stage.addChild(slider2);
+    
+            var bar2 = new createjs.Shape();
+            bar2.width = 300;
+            bar2.graphics.f("#000").dr(0,0,bar.width,3);
+            slider2.addChild(bar2);
+    
+            var knob2 = new createjs.Shape();
+            knob2.graphics.f("orange").rr(0,0,40,60,10);
+            knob2.regX = 20;
+            knob2.regY = 30;
+            slider2.addChild(knob2);
+    
+            var bounds = new createjs.Rectangle(slider2.x+bar2.x, slider2.y+bar2.y, bar2.width, 0);
+            zim.drag(knob2, bounds, "pointer", "ew-resize"); // although perhaps a "grab" would look better
+    
+            // the proportion class handles your proportion equation
+            var proportion = new zim.Proportion(baseMin, baseMax, targetMin, targetMax);
+    
+            slider2.on("pressmove", function(e) {
+                tile.scaleX = tile.scaleY = proportion.convert(e.target.x);
+                stage.update();
+            });
+    
+            /*
+            // here we use proportionDamp to get an eased effect
+            // note, the damping needs to happen constantly not just while dragging
+    
+            var proportion = new zim.ProportionDamp(baseMin, baseMax, targetMin, targetMax);
+    
+            var ticker;
+            createjs.Ticker.setFPS(60);
+            slider2.on("mousedown", function(e) {
+                ticker = createjs.Ticker.on("tick", function(){
+                    // convert the baseAmount (e.target.x) to the targetAmount (scale)
+                    tile.scaleX = tile.scaleY = proportion.convert(e.target.x);
+                    stage.update();
+    
+                });
+            });
+            slider2.on("mouseup", function(e) {
+                createjs.Ticker.off("tick", listener);
+            });
+            */
+    
+            stage.update();
+    
+        }
+    
+    
+    
+        function damping() {
+    
+            // damping is when things slow down - for instance due to friction
+            // it is pretty well the same as easing - deceleration
+            // the idea is, you do not move directly to a position
+            // but rather move a percentage of the way there
+            // we handle damping with a ticker (or a setInverval - but a ticker has some advantages)
+            // the ticker is very much like the enterframe event in Flash
+    
+            zog("____4. DAMPING ____");
+            title.text = "Damping";
+    
+            var tile = makeTiles();
+            tile.regX = tile.getChildAt(0).getBounds().width/2;
+            tile.regY = tile.getChildAt(0).getBounds().height/2;
+            tile.x = stageW/2;
+            tile.y = stageH/3;
+            stage.addChild(tile);
+            stage.update();
+    
+            var damping = .1; // move 10% of the way there each tick
+    
+            // you always have to remember the last value outside the ticker
+            // you could just set a variable
+            // but it is handy to get used to setting a property on the object
+            // so you could handle multiple easings
+            tile.lastX = tile.x;
+    
+            createjs.Ticker.on("tick", animate);
+            createjs.Ticker.setFPS(60);
+            function animate(e) {
+                // the value you are heading towards
+                var desiredX = stage.mouseX;
+                // how much further do you need to go
+                var diffX = desiredX - tile.lastX;
+                // the damping equation
+                // the last amount + the amout to go * the damping
+                // so we only go 10% of the way there if the damping is .1
+                tile.x = tile.lastX + diffX * damping;
+                // do not forget to set the lastX
+                tile.lastX = tile.x;
+                stage.update();
+            }
+    
+            // or use zimbuild Damp class
+    
+            var tile2 = makeTiles();
+            tile2.regX = tile.getChildAt(0).getBounds().width/2;
+            tile2.regY = tile.getChildAt(0).getBounds().height/2;
+            tile2.x = stageW/2;
+            tile2.y = stageH*2/3;
+            stage.addChild(tile2);
+            stage.update();
+    
+            // can pass in start value (default 0)
+            // can pass in damp amount (default .1)
+            var dampX = new zim.Damp(tile2.y);
+            // var dampX = new zim.Damp(); // etc. if you wanted to do both
+    
+            // would normally just use one Ticker...
+            createjs.Ticker.on("tick", animate2);
+            function animate2(e) {
+                tile2.y = dampX.convert(stage.mouseY);
+                stage.update();
+            }
+    
+    
+        }
+    
+    
+    
+        function tiling() {
+    
+            // the idea behind tiling is to set the number of rows and columns
+            // then put a loop within a loop and make your objects
+            // most likely these objects will be put in a container (a collection)
+            // in this example, we store a word on each tile
+            // we then show the word as we roll over the tile and hide the word when we roll off
+            // you could use this technique to handle thumbnails
+            // and store the url to a picture on each of the tiles
+    
+            // you might have a total number of objects and a set number of columns
+            // you can then calculate the number of rows:
+            // rows = Math.floor(total / cols);
+            // then just make sure there is an element of the array at count
+            // if (!words[count]) {break;} // this will tile as many things as are in the list
+    
+            zog("____5. TILING ____");
+            title.text = "Tiling";
+    
+            var cols = 5;
+            var rows = 4;
+            var words = ["Argle-bargle", "Bloviate", "Blunderbuss", "Canoodle", "Codswallop", "Crapulence", "Ecdysiast", "Fard", "Fartlek", "Gaberlunzie", "Lickspittle", "Mugwump", "Oocephalus", "Pettifogger", "Skedaddle", "Snool", "Tatterdemalion", "Turdiform", "Wabbit", "Widdershins"]; //  words from: http://www.alphadictionary.com
+    
+            var tiles = new createjs.Container();
+            var tile; var g;
+            var i; var j; var count=0;
+            for (i=0; i<rows; i++) {
+                for (j=0; j<cols; j++) {
+                    tile = new createjs.Shape();
+                    tile.word = words[count];
+                    count++;
+                    g = tile.graphics;
+                    g.beginStroke("white").setStrokeStyle(2).beginFill("#000");
+                    g.drawRoundRect(0, 0, squareW, squareH, 20);
+                    g.beginFill("#FFF"); // outer circle
+                    g.drawCircle(squareW/2, squareH/2, squareH/2*.8);
+                    g.beginFill("#000"); // inner circle
+                    g.drawCircle(squareW/2, squareH/2, squareH/2*.5);
+                    tile.x = j*(squareW+squareS);
+                    tile.y = i*(squareH+squareS);
+                    tile.setBounds(0, 0, squareW, squareH); // for future hitTests
+                    tiles.addChild(tile);
+                }
+            }
+    
+            stage.addChild(tiles);
+            tiles.x = (stageW - tiles.getBounds().width) / 2;
+            tiles.y = (stageH - tiles.getBounds().height) / 2;
+            stage.update();
+    
+            tiles.on("mouseover", function(e){
+                title.text = "Tiling - " + e.target.word;
+                stage.update();
+            });
+    
+            tiles.on("mouseout", function(e){
+                title.text = "Tiling";
+                stage.update();
+            });
+        }
+    
+    
+        function scroller() {
+    
+            // make a backing animate continuously
+            // the backing must be wider than the screen if moving horizontally
+            // or taller than the screen if moving vertically
+            // we copy the backing and as one of the backings goes off the screen
+            // we add it to the trailing end of the other backing
+            // this way, they keep swapping forever!
+    
+            zog("____6. SCROLLER ____");
+            title.text = "Scroller (use arrows and spacebar)";
+    
+            var backing1 = makeBacking();
+            var backing2 = makeBacking();
+            var direction = 1; // to the right (-1 to the left)
+    
+            backing1.y = -100;
+            backing2.y = -100;
+    
+            backing2.x = backing1.getBounds().width;
+    
+            stage.addChild(backing1);
+            stage.addChild(backing2);
+    
+            function makeBacking() {
+                var backing = new createjs.Shape();
+                var g = backing.graphics;
+                g.f("green");
+                g.mt(0,stageH).lt(400,stageH*.5).lt(800,stageH);
+                g.lt(1000,stageH*.6).lt(1300,stageH*.9).lt(1900,stageH*.3).lt(3000,stageH);
+                backing.setBounds(0,0,3000,stageH);
+                backing.cache(0,0,3000,stageH); // note that this could speed up things
+                return backing;
+            }
+    
+            var tiles = makeTiles(2);
+            tiles.x = (stageW - tiles.getBounds().width)/2;
+            tiles.y = stageH - tiles.getBounds().height -50;
+            stage.addChild(tiles);
+    
+            stage.update();
+    
+            var ticker = createjs.Ticker.on("tick", animate);
+            createjs.Ticker.setFPS(60);
+            var backingSpeed = 2;
+            function animate(e) {
+                // pausing the ticker does not really pause the ticker (weird)
+                if (createjs.Ticker.getPaused()) {return;}
+                backing1.x -= backingSpeed*direction;
+                backing2.x -= backingSpeed*direction;
+    
+                // here is the art of tiling
+                // we keep swapping the tiles so they can animage smoothly forever
+                // if we were going only one direction then we would not need the conditional
+                if (direction > 0) {
+                    if (backing2.x < 0 && backing1.x < backing2.x) {
+                        backing1.x = backing2.getBounds().width;
+                    } else if (backing1.x < 0 && backing2.x < backing1.x) {
+                        backing2.x = backing1.getBounds().width;
+                    }
+                } else {
+                    if (backing2.x > stageW && backing2.x > backing1.x) {
+                        backing2.x = backing1.x - backing1.getBounds().width;
+                    } else if (backing1.x > stageW && backing1.x > backing2.x) {
+                        backing1.x = backing2.x - backing2.getBounds().width;
+                    }
+                }
+                stage.update();
+            }
+    
+            // pause scroller if spacebar hit
+            window.addEventListener("keydown", doKey);
+            function doKey(e){
+                //zog(e.keyCode);
+                if (!e) e = event; // for some old IE or something...
+                if (e.keyCode == 32) {
+                    createjs.Ticker.setPaused(!createjs.Ticker.getPaused());
+                } else if (e.keyCode == 39) {
+                    direction = 1;
+                    createjs.Ticker.setPaused(false);
+                } else if (e.keyCode == 37) {
+                    direction = -1
+                    createjs.Ticker.setPaused(false);
+                }
+            }
+    
+        }
+    
+    
+        function scroller2() {
+    
+            // make a backing animate continuously
+            // the backing must be wider than the screen if moving horizontally
+            // or taller than the screen if moving vertically
+    
+            // this time we use the zimbuild Scroller class
+    
+            zog("____6. SCROLLER 2 ____");
+            title.text = "Scroller 2 (use arrows, numbers and spacebar)";
+    
+            var backing1 = makeBacking(); // can use images too
+            var backing2 = makeBacking();
+            var speed = 4;
+            var direction = 1; // to the right (-1 to the left)
+            var horizontal = true;
+    
+            backing1.y = -100;
+            backing2.y = -100;
+            stage.addChild(backing1);
+            stage.addChild(backing2);
+    
+            // call the Scroller class - speed defaults to 5, direction to 1, horizontal to true
+            var scroller = new zim.Scroller(backing1, backing2, speed, direction, horizontal);
+    
+    
+            function makeBacking() {
+                var backing = new createjs.Shape();
+                var g = backing.graphics;
+                g.f("green");
+                g.mt(0,stageH).lt(400,stageH*.5).lt(800,stageH);
+                g.lt(1000,stageH*.6).lt(1300,stageH*.9).lt(1900,stageH*.3).lt(3000,stageH);
+                backing.setBounds(0,0,3000,stageH);
+                backing.cache(0,0,3000,stageH);
+                return backing;
+            }
+    
+            var tiles = makeTiles(2);
+            tiles.x = (stageW - tiles.getBounds().width)/2;
+            tiles.y = stageH - tiles.getBounds().height -50;
+            stage.addChild(tiles);
+    
+            stage.update();
+    
+            // pause scroller if spacebar hit
+            window.addEventListener("keydown", doKey);
+            function doKey(e){
+                //zog(e.keyCode);
+                if (!e) e = event; // for some old IE or something...
+                if (e.keyCode == 32) {
+                    scroller.direction = 0; // probably want to remember last direction and toggle pause
+                } else if (e.keyCode == 39 || e.keyCode == 40) { // right or down
+                    scroller.direction = 1;
+                } else if (e.keyCode == 37 || e.keyCode == 38) { // left or up
+                    scroller.direction = -1;
+                } else if (e.keyCode >= 48 && e.keyCode <= 57) { // 0-9
+                    scroller.speed = e.keyCode - 48;
+                }
+            }
+    
+    
+        }
+    
+    
+        function parallax() {
+    
+            // Parallax is when things in the foreground move more than things in the background
+            // this gives a sense of 3D
+            // here we move the background based on the mouseX position
+            // we make the background move less than the foreground
+            // and we do not go directly to the position, rather we ease by applying damping
+            // the DanZen ProportionDamp() class will help
+    
+    
+            zog("____7. PARALLAX ____");
+            title.text = "Parallax";
+    
+            var backing = makeBacking();
+            backing.regX = backing.getBounds().width / 2;
+            backing.scaleX = backing.scaleY = .5;
+            backing.y = 170;
+            backing.x = stageW / 2;
+            stage.addChild(backing);
+    
+            function makeBacking() {
+                var backing = new createjs.Shape();
+                var g = backing.graphics;
+                g.f("green");
+                g.mt(0,stageH).lt(400,stageH*.5).lt(800,stageH);
+                g.lt(1000,stageH*.6).lt(1300,stageH*.9).lt(1900,stageH*.3).lt(3000,stageH);
+                backing.setBounds(0,0,3000,stageH);
+                backing.cache(0,0,3000,stageH);
+                return backing;
+            }
+    
+            var tiles = makeTiles(2);
+            tiles.regX = tiles.getBounds().width/2;
+            tiles.x = stageW/2;
+            tiles.y = 440;
+            stage.addChild(tiles);
+    
+            stage.update();
+    
+            // use zimbuild.js ProportionDamp class
+            // this calculates a proportional value and includes damping
+            // baseMin, baseMax, targetMin, targetMax, damping
+            var pd1 = new zim.ProportionDamp(0, stageW, 0, 400, .1);
+            var pd2 = new zim.ProportionDamp(0, stageW, 0, 100, .1);
+    
+            var ticker = createjs.Ticker.on("tick", animate);
+            createjs.Ticker.setFPS(60);
+    
+            function animate(e) {
+                // convert the baseAmount into a targetAmount
+                // we will be moving 0-400 and we want to center that
+                // so that 200 will be to the left of center and 200 to the right of center
+                // this is assuming we centered the registration points of the objects
+                tiles.x = stageW/2 - 200 + pd1.convert(stage.mouseX);
+                backing.x = stageW/2 - 50 + pd2.convert(stage.mouseX);
+                stage.update();
+            }
+    
+    
+        }
+    
+    
+        function parallax2() {
+    
+            // here we use the zimbuild.js Parallax class
+    
+            // Parallax is when things in the foreground move more than things in the background
+            // this gives a sense of 3D
+            // here we move the background based on the mouseX position
+    
+    
+    
+            zog("____7. PARALLAX 2 ____");
+            title.text = "Parallax 2";
+    
+            var backing = makeBacking();
+            backing.regX = backing.getBounds().width / 2;
+            backing.scaleX = backing.scaleY = .5;
+            backing.y = 170;
+            backing.x = stageW / 2;
+            stage.addChild(backing);
+    
+            function makeBacking() {
+                var backing = new createjs.Shape();
+                var g = backing.graphics;
+                g.f("green");
+                g.mt(0,stageH).lt(400,stageH*.5).lt(800,stageH);
+                g.lt(1000,stageH*.6).lt(1300,stageH*.9).lt(1900,stageH*.3).lt(3000,stageH);
+                backing.setBounds(0,0,3000,stageH);
+                backing.cache(0,0,3000,stageH);
+                return backing;
+            }
+    
+            var tiles = makeTiles(2);
+            tiles.regX = tiles.getBounds().width/2;
+            tiles.x = stageW/2;
+            tiles.y = 440;
+            stage.addChild(tiles);
+    
+            stage.update();
+    
+            // here is the step by step approach
+            // var p = new zim.Parallax(stage, .1);
+            // p.addLayer(tiles, 400, 0);
+            // p.addLayer(backing, 100, 0);
+            
+            // or - stage, damping and array of layer arrays
+            var p = new zim.Parallax(stage, .1, [[tiles, 400, 0],[backing, 100, 0]]);
+            
+        }
+    
+        function buttonsAndPanes() {
+    
+            // a button is just a rectangle with some text on it
+            // we will use the zimbuild Button class - check it out if you want to see what we did
+    
+            // a pane or pop-up window is just a container with a rectangle display
+            // it is a good idea to make a larger backing rectangle for modality
+            // the pane dispatches a "close" event when clicking on its backing rectangle
+            // you can addChild and removeChild when you want to show or hide the pane
+            // you can just add whatever you want to the pane - images, text, shapes, navigation, etc.
+            // you can easily make the pane draggable with our normal drag technique
+    
+            // this pane pops up when you press a tile
+            // and closes when you press off the tile
+    
+    
+            zog("____8. BUTTONS AND PANES ____");
+            title.text = "Buttons and Panes";
+    
+            // the zimbuild.js Button class has the following parameters (all optional)
+            /*
+            width, height,
+            label, fontSize, font,
+            backingColor, backingRollColor, textColor, textRollColor, borderColor,
+            corner, shadow
+            */
+    
+            var button = new zim.Button(240, 90, "POPUP", 44);
+            button.x = (stageW - button.getBounds().width)/2;
+            button.y = 400;
+            stage.addChild(button);
+    
+            var pane = makePane(400,150,"white");
+            pane.x = (stageW - pane.getBounds().width) / 2;
+            pane.y = 150;
+    
+            var myText = new createjs.Text("MESSAGE", "40px Verdana", "black");
+            myText.textAlign = "center";
+            myText.textBaseline = "middle";
+            myText.x = pane.getBounds().width / 2;
+            myText.y = pane.getBounds().height / 2;
+            pane.addChild(myText);
+    
+            pane.on("close", function() {
+                stage.removeChild(pane);
+                stage.update();
+            });
+    
+            button.on("click", function() {
+                stage.addChild(pane);
+                stage.update();
+            });
+    
+            stage.update();
+        }
+    
+        function makePane(w,h,c) {
+    
+            var pane = new createjs.Container();
+    
+            var backing = new createjs.Shape();
+    
+            // make a big backing that closes the pane when clicked
+            // could also provide a close button
+            var g = backing.graphics;
+            g.beginFill("black");
+            g.drawRect(-5000,-5000,10000,10000);
+            backing.alpha = .2; // might want to pass as a parameter
+            backing.on("click", function(e) {
+                pane.dispatchEvent("close");
+            });
+            pane.addChild(backing);
+    
+            var display = new createjs.Shape();
+            g = display.graphics;
+            g.beginFill(c);
+            g.drawRoundRect(0, 0, w, h, 20);
+            display.shadow = new createjs.Shadow("#333", 8, 8, 20);
+            display.on("click", function(e) {
+                // stops the click from going through the display to the background
+                e.stopImmediatePropagation();
+            });
+            pane.addChild(display);
+    
+            // makes it seem like the pane has the dimensions of the display
+            pane.setBounds(0,0,w,h);
+    
+            return pane;
+        }
+    
+    
+        function buttonsAndPanes2() {
+    
+            // or use the zimbuild.js Pane Class
+    
+            zog("____8. BUTTONS AND PANES 2 ____");
+            title.text = "Buttons and Panes 2";
+    
+            // the zimbuild.js Button class has the following parameters (all optional)
+            /* 
+            width, height,
+            label, // ZIM Label or plain text for default settings
+            backingColor, backingRollColor, borderColor, borderThickness,
+            corner, shadowColor (set to -1 for no shadow), shadowBlur
+            */
+            
+            var button = new zim.Button(240, 90, "POPUP", 44);
+            button.x = (stageW - button.getBounds().width)/2;
+            button.y = 400;
+            stage.addChild(button);
+    
+            // when we create a centered pane that gets added via zim code, we need a stage
+            // for centering and adding if we want to add it in the zim code
+            /*
+            pass in the container for the pane (usually the stage) and the width and height of the pane
+            pass in an optional ZIM Label (or text for default label properties)
+            pass in a boolean for if you want to drag the pane (default false)
+            pass in whether a dragging pane should open at first start position (defaults false)
+            for reset, by default, Pane takes the first position and will continue to use that
+            modal defaults to true and means the pane will close when user clicks off the pane
+            corner is the corner radius default 20
+            the backingAlpha is the darkness of the background that fills the stage
+            shadowColor defaults to #333
+            value for shadow blur - 0 for no shadow
+            center - defaults to true and centers the label on the pane
+            */
+            
+            /* here we will make a label for the pane		
+                labelText,
+                fontSize, font, textColor, textRollColor,
+                shadowColor, shadowBlur
+            */
+			var myText = new zim.Label("DRAG MESSAGE", 40, "Verdana", "black");	
+			myText.mouseEnabled = false; // so we can drag pane even on the text
+			var pane = new zim.Pane(stage, 440, 150, myText, "white", true, true);	
+	
+			button.on("click", function() {			
+				pane.show();
+				pane.y = 250;
+				stage.update();	
+				
+			});
+        
+            stage.update();	
+        }
+    
+    
+        function progressBar() {
+    
+            // we get a proportion of the application loaded
+            // in the animateProgress() function of the template (using PreloadJS)
+            // this is a number from 0 to 1
+            // we make a bar that is as wide as it will be at 100%
+            // we set the scaleX of a bar to match the progress
+            // when the loading is at 1 or complete, we hide the bar and run the app
+            // optionally, we can add some text that tells us the percentage
+            // with a mask you can make the bar more exciting
+            // you can also put a number of objects relating to your app on the stage
+            // then as the loading progresses, remove the objects to indicate progress
+            // the whole backing might fill up to indicate progress, etc.
+            // use your imagination!
+    
+            zog("____9. PROGRESS BAR ____");
+            title.text = "Progress Bar";
+    
+            // this would go in the makeProgress() function of the template
+            var bar = makeBar(200, 20, "#933", "#ccc");
+            stage.addChild(bar);
+            bar.x = 200;
+            bar.y = 200;
+    
+            // here we will emulate content being loaded
+            var interval = setInterval(doProgress, 50);
+            var progress = 0;
+            function doProgress() {
+                // this would go in the animateProgress() function of the template
+                // we would get this from e.target.progress
+                // there would be no need to increase the progress manually
+                progress += .01;
+                // optional text percentage
+                title.text = "Progress Bar - loaded: " + Math.floor(progress * 100) + " %";
+                if (progress >= 1) {
+                    stage.removeChild(bar);
+                    bar = null;
+                    clearInterval(interval);
+                    startApplication();
+                    return;
+                }
+                bar.setProgress(progress);
+            }
+            stage.update();
+        }
+    
+        // this would be your main application function
+        function startApplication() {
+            title.text = "Progress Bar - Application Started";
+            stage.update();
+        }
+    
+        function makeBar(w, h, fc, bc) {
+    
+            // makes a progress bar with forground color and background color
+    
+            var progressBar = new createjs.Container();
+    
+            var backing = new createjs.Shape();
+            progressBar.addChild(backing);
+            var g = backing.graphics;
+            g.beginFill(bc);
+            g.drawRect(0,0,w,h);
+            progressBar.addChild(backing);
+    
+            var bar = new createjs.Shape();
+            g = bar.graphics;
+            g.beginFill(fc);
+            g.drawRect(0, 0, w, h);
+            bar.scaleX = 0;
+            progressBar.addChild(bar);
+    
+            progressBar.setProgress = function(num) {
+                bar.scaleX = num;
+                stage.update();
+            }
+    
+            return progressBar;
+    
+        }
+    
+    
+        function makeTitle() {
+    
+            var menu = new createjs.Bitmap("images/logo_s.jpg"); // was causing local error in chrome
+            var menu = new createjs.Shape();
+            menu.graphics.f("white").r(-110,-70,220,140); // white backing
+            menu.graphics.f("#000000").p("ALwKMIAAkiIEiAAIAAEigAB1KMIlNvoIAAPoIkiAAIAA0XIHmAAIEbOCIEhuCIHqAAIAAM8IkiAAIAAohIlaP8gAwRKMIAAstIEiAAIAAMtgAwRlpIAAkiIEiAAIAAEig");
+            menu.x = 36;
+            menu.y = 29;
+            menu.alpha = .6;
+            menu.scaleX = menu.scaleY = .18;
+            menu.cursor = "pointer";
+            stage.addChild(menu);
+            menu.on("mouseover", function(){menu.alpha = .9; stage.update();});
+            menu.on("mouseout", function(){menu.alpha = .6; stage.update();});
+            menu.on("click", function(){zgo("index.html");});
+    
+            var title = new createjs.Text("Building Basics", "26px Verdana", "#933");
+            title.textBaseline = "alphabetic";
+            title.alpha = .9;
+            title.x = 72;
+            title.y = 40;
+            stage.addChild(title);
+            stage.update();
+            return title;
+        }
+    
+    
+    }
+
+
+});
+
+
+</script>
+
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

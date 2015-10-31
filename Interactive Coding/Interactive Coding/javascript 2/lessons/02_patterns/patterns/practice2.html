@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JavaScript Object Oriented</title>
+<link href="patterns.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
+
+<script>
+console.log ("hi from practice2");
+
+function sample () { // normal function
+
+
+}
+
+var sample2 = function () { // function object - variable is storing a function
+
+}
+
+var myArray = [function(hour){console.log("hi " + hour);}, // concatenating hour
+              function(hour, minutes){console.log("helllo " + hour + ":" + minutes)}]; // two function objects inside an array
+
+myArray[0](9); // gives access to the first function - but does not run the function - if you want to run it have to have two round brackets
+
+myArray[1](12, 0); // now running the function - using array access operator []
+
+function area(a, b){
+  var depth = 2; // when you declar a var - its available within the scope you've defined it.  When you define it inside a function
+  depth2 = 2; // this a global variable
+  console.log (depth);
+  return a*b;
+}
+
+console.log(area(2,10)); //
+
+area(2, 10) // just to run function
+
+var a = area(2, 10) // can also store it in a variable
+
+console.log(a);
+
+var myObject = {color: "red", doIt:function(){return "run"; }}; // object literal with a property in it - red is value, color is property
+console.log(myObject.color); // print out red
+7 // number object
+console.log(myObject.doIt() )
+
+myObject.alpha = .3; // dynamic object - declare property called alpha as we go
+console.log (myObject["alpha"] ); // property name as a string - if we dont - it will look for a variable called alpha
+
+// try to remember module pattern - as simple as possible
+
+// each box is a scope
+
+//classes
+var Car = function () { // define a class
+  console.log ("new car!");
+  var weight = 1000; // local or private property , local variable
+  function calculate() { // private method
+    console.log ("calculating" + weight*2); // local property , local methods
+  }
+  calculate();
+  this.cost = 2000; // public property - can access it globally / "this" is an object - THIS is getting stored on firstCar
+  this.drive = function(){ // public (privilaged) method // This getting stored on firstCar
+    console.log ("driving fast! crash!!!!" + weight*2);
+  }
+}
+
+// Car(); // print out "new car"
+
+
+var firstCar = new Car (); // keyword new makes an object from that function // this is car object // storing object in a variable // firstCar is an instance
+console.log(firstCar); // new keyword makes it a class , able to call it outside function
+console.log (firstCar.cost)
+firstCar.drive();
+
+// MODULE PATTERN
+
+var sports = function(sports){
+    sports.football = function(){
+        console.log ("football");
+
+      }
+    return sports; // allows you to combine multiple properties in one object
+}(sports || {}); // how to run function right away
+
+
+
+var sports = function (sports){
+sports.golf = function(){
+    console.log ("golf");
+
+  }
+  return sports;
+} (sports || {});
+
+sports.football();
+sports.golf();
+
+
+
+
+
+</script>
+
+
+
+
+
+
+</head>
+<body>
+<nav><a href="index.html"><img src="images/logo_s.jpg" /></a></nav>
+
+<section>
+
+<h1>Practice2</h1>
+
+see console (CTRL SHIFT I)
+
+</section>
+
+<footer>
+Mini Site - Pattern Basics - Interactive Coding - Sheridan Interactive Media
+</footer>
+</body>
+</html>
