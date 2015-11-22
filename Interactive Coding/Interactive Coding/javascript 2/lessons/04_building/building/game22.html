@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>game</title>
+
+	<!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
+	<!-- see http://zimjs.com/templates for more templates and meta tags -->
+
+	<script>
+		var zon = true; // true for comments from zim code
+	</script>
+	<script src="../../../code/zim_1.4.4.js"></script>
+	<script src="../../../code/createjs-2015.05.21.min.js"></script>
+	<!-- should use CDN links available from CreateJS and ZIM sites -->
+
+	<style>
+		body {
+			margin: 0px;
+			padding: 0px;
+			background-color: #000;
+		}
+
+		#myCanvas {
+			position: absolute;
+			background-color: #fff;
+		}
+	</style>
+
+	<script>
+		// SCALING OPTIONS
+		// "none"		sets canvas and stage to dimensions and does not scale if window changes
+		// "fit"		sets canvas and stage to dimensions and scales to fit inside window size
+		// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+		// "full"		sets canvas and stage to window size (canvas is actually set to screen size)
+
+		var scaling = "fit"; // fit scales to fit the browser window while keeping the aspect ratio
+		var width = 1168;
+		var height = 1050;
+		var frame = new zim.Frame(scaling, width, height);
+		frame.on("ready", function() {
+			zog("ready from ZIM Frame");
+
+			var stage = frame.stage;
+			var stageW = frame.width;
+			var stageH = frame.height;
+
+			// used for tiles if there are tiles
+			var squareW = 120;
+			var squareH = 90;
+			var squareS = 20;
+
+			// collections(); // comment this out when you have preload going
+
+			var imagePath = "images/";
+			var manifest = [{id: "backing", src: "leaves.jpeg"},
+											{id: "eye", src: "eyes.png"},
+											{id: "background", src: "meandbrain.png"}];
+
+
+			var preload = new createjs.LoadQueue(false, imagePath);
+			preload.loadManifest(manifest);
+			preload.on("complete", collections);
+
+
+			function collections() {
+
+				zog("____1. GAME ____");
+				makeTitle("Collections");
+
+				stage.enableMouseOver(10);
+
+				var newpic = new createjs.Bitmap(preload.getResult("eye"));
+				newpic.x = stageW / 2;
+				newpic.y = stageH / 2;
+
+				var backgroundpic = new createjs.Bitmap(preload.getResult("background"));
+				backgroundpic.x = 0;
+				backgroundpic.y = 0;
+				stage.addChild(backgroundpic);
+
+				// var backing = new createjs.Bitmap(preload.getResult("backing"));
+				// stage.addChildAt(backing, 0);
+				// backing.alpha = .5;
+				//
+
+
+        var backing3 = new createjs.Bitmap(preload.getResult("backing"));
+				backing3.x = stageW / 2;
+				backing3.y = stageH / 2;
+
+
+				var tomato = new zim.Circle(20, "tomato");
+				stage.addChild(tomato);
+				tomato.x = stageW / 2;
+				tomato.y = stageH / 2;
+
+				createjs.Ticker.framerate = 60;
+				var tween = createjs.Tween.get(tomato);
+
+				var tomato1 = new zim.Circle(20, "tomato");
+				stage.addChild(tomato1);
+				tomato1.x = stageW/2;
+				tomato1.y = stageH/2;
+
+				var tomato2 = new zim.Circle(20, "tomato");
+				stage.addChild(tomato2);
+				tomato2.x = stageW/2;
+				tomato2.y = stageH/2;
+
+
+				function done() {
+					tomato.scaleX = tomato.scaleY = 1;
+					// myCircle.alpha = 0;
+					stage.update();
+				}
+
+
+				tomato.on("mouseover", function() {
+					createjs.Tween.get(tomato)
+					.to({y:220, x:110}, 1500, createjs.Ease.bounceOut)
+					.call(done);
+					stage.update();
+				});
+
+
+				tomato.on("click", function() {
+					stage.addChild(newpic);
+
+					backing3.visible = false;
+					stage.addChild(backing3);
+					var index = 0;
+					var interval = setInterval(function() {
+              if (newpic.visible) {
+								newpic.visible = false;
+								backing3.visible = true;
+							} else {
+								newpic.visible = true;
+								backing3.visible = false;
+							}
+
+							stage.update();
+					}, 1000);
+
+					// stage.removeChild(newpic);
+					stage.update();
+				});
+
+
+
+
+
+			var listener = createjs.Ticker.on("tick", stage);
+
+
+				stage.update();
+			}
+
+			// making tiles in a lot of these examples
+			// so will just include this in each file
+
+			function makeTiles(num) {
+				if (typeof num === 'undefined') {
+					num = 1;
+				}
+				var tiles = new createjs.Container();
+				var tile;
+				var g;
+				for (var i = 0; i < num; i++) {
+					tile = new createjs.Shape();
+					g = tile.graphics;
+					g.beginStroke("white").setStrokeStyle(2).beginFill("#000");
+					g.drawRoundRect(0, 0, squareW, squareH, 20);
+					g.beginFill("#FFF"); // outer circle
+					g.drawCircle(squareW / 2, squareH / 2, squareH / 2 * .8);
+					g.beginFill("#000"); // inner circle
+					g.drawCircle(squareW / 2, squareH / 2, squareH / 2 * .5);
+					tile.regX = squareW / 2; // just makes snapping a little easier
+					tile.regY = squareH / 2; // because we can use the registration point to test on
+					tile.x = i * (squareW + squareS) + tile.regX;
+					tile.y = tile.regY;
+					tile.setBounds(0, 0, squareW, squareH); // for future hitTests
+					tiles.addChild(tile);
+				}
+				return tiles;
+			}
+
+			function makeTitle(t) {
+
+				var menu = new createjs.Bitmap("images/logo_s.jpg"); // was causing local error in chrome
+				var menu = new createjs.Shape();
+				menu.graphics.f("white").r(-110, -70, 220, 140); // white backing
+				menu.graphics.f("#000000").p("ALwKMIAAkiIEiAAIAAEigAB1KMIlNvoIAAPoIkiAAIAA0XIHmAAIEbOCIEhuCIHqAAIAAM8IkiAAIAAohIlaP8gAwRKMIAAstIEiAAIAAMtgAwRlpIAAkiIEiAAIAAEig");
+				menu.x = 36;
+				menu.y = 29;
+				menu.alpha = .6;
+				menu.scaleX = menu.scaleY = .18;
+				menu.cursor = "pointer";
+				stage.addChild(menu);
+				menu.on("mouseover", function() {
+					menu.alpha = .9;
+					stage.update();
+				});
+				menu.on("mouseout", function() {
+					menu.alpha = .6;
+					stage.update();
+				});
+				menu.on("click", function() {
+					zgo("index.html");
+				});
+
+				var title = new createjs.Text(t, "26px Verdana", "#933");
+				title.textBaseline = "alphabetic";
+				title.alpha = .9;
+				title.x = 72;
+				title.y = 40;
+				stage.addChild(title);
+				stage.update();
+				return title;
+			}
+
+		});
+	</script>
+
+
+</head>
+
+<body>
+
+	<img src="images" name="slideshow">
+
+
+	<div class="eyepic">
+	    <!-- <a href="javascript:auto(1)" </a> -->
+	    <img src="images/eyes.png" />
+
+	</div>
+	<script>
+
+	  var Image = new Array("images/Rooney-Mara-026.jpg","images/felicity.jpg", "images/Emma-Watson-Glamour-UK.jpg","halfnelsonalltakes.mp4","images/slate.mp4");
+
+	  var interval = null;
+
+
+		var Image_Number = -1;
+		var Image_length = Image.length - 1;
+
+		function changeImage(num) {
+			Image_Number = Image_Number + num;
+
+			if (Image_Number > Image_length) {
+				// Image_Number = 0;
+	      clearInterval( interval );
+	      Image_Number = -1;
+			}
+
+			if (Image_Number < 0) {
+				Image_Number = Image_Length;
+
+			}
+
+			document.slideshow.src = Image[Image_Number];
+	    console.log("changeImage");
+			return false;
+
+		}
+
+		function auto() {
+			interval = setInterval ("changeImage(1)", 200);
+
+		}
+
+	</script>	<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+
+</html>

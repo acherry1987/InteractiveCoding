@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Parts from Flash</title>
+
+<!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
+<!-- see http://zimjs.com/templates for more templates and meta tags -->
+
+<script>var zon = true; // true for comments from zim code</script>
+<script src="http://d309knd7es5f10.cloudfront.net/zim_1.4.4_min.js"></script><!-- take off _min to see code -->
+<script src="http://code.createjs.com/createjs-2015.05.21.min.js"></script>
+<!-- or can go to zimjs.com and createjs.com for individual modules -->
+
+<style>
+	body {margin:0px; padding:0px; background-color:#000;}
+	#myCanvas {position:absolute; background-color:#fff;}
+</style>
+
+<script>
+
+// SCALING OPTIONS
+// "none"		sets canvas and stage to dimensions and does not scale if window changes
+// "fit"		sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"		sets canvas and stage to window size (canvas is actually set to screen size)
+
+var scaling = "fit"; // fit scales to fit the browser window while keeping the aspect ratio
+var s = 2;
+var width = 960*s;
+var height = 640*s;
+var frame = new zim.Frame(scaling, width, height);
+frame.on("ready", function() {
+	zog("ready from ZIM Frame");
+
+	var stage = frame.stage;
+	var stageW = frame.width;
+	var stageH = frame.height;
+
+	// put your code here (you can delete this code)
+
+	var parts = new createjs.Container();
+	stage.addChild(parts);
+
+	var shape1 = new createjs.Shape();
+	shape1.graphics.f("#0066CC").s().p("ArrDxQBWlYCVqZIPvgIQCbJ1BiF2IrpImgAAcrJIgFAAIgSACIgTADQhJANg+AnQh4AWhbBbQhGBHgeBYQgUAQgUATQhIBKgdBaQgQAvgDAzQgCARAAARQAAB7BABjQAYAlAiAiQAiAiAnAZQAPApAYAmQAYAmAiAiQA2A2BAAeQBRAnBhAAQA8AAA4gQQA0gPAugdQAqgaAlglIAFgFQAjgEAhgKQA0gOAugdQAqgaAlglQBghgAViAQAFgiAAglQAAgbgDgXQgDgagGgZQgGgcgLgaQgWg1glgvIAIgUIgdgYIgOgfQgDgagGgYQgGgcgLgaQgRgrgaglQgTglgbgiIgHgIQgNgPgOgPQg/g+hLgeQgagLgcgHIgLgDQgsgJgwAAQgSAAgSACg");
+	parts.addChild(shape1);
+	zim.drag(parts);
+	shape1.x= shape1.y = 100;
+
+
+
+
+	// var parts2 = new createjs.Container();
+	// stage.addChild(parts2)
+
+	var shape2 = new createjs.Shape();
+	shape1.graphics.f("#33CCCC").s().p("AOeNzIgMgyIg6ABIiPpLIIolTIChCHIAANugAyhl4QgXgLgWgOQgngZgigiQgigigYgmQhAhiAAh9QAAgRABgRQAEgzAQgvIABgFIALgcIMCAAIADAIQALAaAGAcQAGAYADAaQADAaAAAbQAAAkgGAjQgUB/hhBhQgkAlgqAaQguAcg0APQghAKgjAEQgZACgZAAQhiAAhQgmg");
+	parts.addChild(shape2);
+	zim.drag(parts);
+	shape2.x= shape1.y = 300;
+
+
+	function makeShape() {
+	var shape3 = new createjs.Shape();
+	shape3.graphics.f("#33CCCC").s().p("Ao0KwIjfu2INCn7ILlJ/Il7OEg");
+	parts.addChild(shape3);
+
+  }
+
+	for (var j=0; j<2; j++) {
+	makeShape();
+  }
+
+	var shape4 = new createjs.Shape();
+	shape4.graphics.f("#33CCCC").s().p("Ao0KwIjfu2INCn7ILlJ/Il7OEg");
+	parts.addChild(shape4);
+
+
+
+
+	parts.on("mousedown", function(e) {
+		parts.addChild(e.target);
+		stage.update();
+
+	});
+
+	parts.on("pressup", function(e) {
+		//parts.removeChild(e.target); // make shape dissapear
+		//stage.update();
+		var part = e.target;
+		zim.move(part, part.startX, part.startY, 700, "elasticOut");
+	});
+
+	var part;
+	for (var i=0; i<parts.numChildren; i++){ // keep looping until i is less than the number of children in parts
+		part = parts.getChildAt(i);
+		//part.cache(0, 0, 300, 300);
+		part.y = 200;
+		part.x = 100 + i * 140; // makes tiles
+		//part.setBounds(0,0,100,100);
+		//zim.outline(part);
+
+
+		//zim.move(part, 300, 300, 3000); // object, x, y, time in ms
+		part.startX = zim.rand(100, stageW-200)/s;
+		part.startY = zim.rand(100, stageH-200)/s;
+		zim.move(part, part.startX, part.startY, 700);
+		//zim.move(part, zim.rand (100, stageW-200)/s, zim.rand(100, stageH-200)/s, 700); // object, x, y, time in ms
+	}
+
+
+
+	zim.scale(parts, s);
+
+
+	var button = new zim.Button(120,60,"ZIM");
+	zim.centerReg(button);
+	button.x = stageW/2;
+	button.y = stageH/2;
+	button.on("click", function() {
+		zgo("http://zimjs.com");
+	});
+	stage.addChild(button);
+
+
+
+	stage.update();
+
+}); // end of ready
+</script>
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

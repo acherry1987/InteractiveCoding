@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Dynamic Drawing - JavaScript Interactive Basics</title>
+<title>PRELOADING - JavaScript Interactive Basics</title>
 <link href="interactive.css" rel="stylesheet" type="text/css" />
 <script>var zon = false; // false for no comments from danzen.js</script>
 <script type="text/javascript" src="../../../code/zim_1.4.4.js"></script>
@@ -29,7 +29,7 @@ window.addEventListener('load', interactive);
 
 function interactive() {
 
-	zog("____2. DYNAMIC DRAWING____");
+	zog("____8. PRELOADING____");
 
 	var stage = new createjs.Stage("myCanvas");  // createjs is name stage , class is function that has a capital letter
 	stage.enableMouseOver(10); // 10 times per second
@@ -38,60 +38,43 @@ function interactive() {
 	var stageH = stage.canvas.height;
 	console.log(stageW);
 
-var myShape = new createjs.Shape();  // making class - then making object from that class
-//zog(myShape); //console.log()
+
+var imagePath = "images/";
+var manifest = [{id:"backing", src:"felicity.jpg"}];
+var preload = new createjs.LoadQueue(false, imagePath);
+preload.loadManifest(manifest);
+preload.on("complete", startApp);
+
+function startApp () {
+
+	var backing = new createjs.Bitmap(preload.getResult("backing"));
+	stage.addChildAt(backing, 0);
 
 
-myShape.graphics.beginFill("rgba(0,0,0,0)"); // rgba as string
-// myShape.graphics.setStrokeStyle(4);
-// myShape.graphics.beginStroke("green");
-myShape.graphics.drawRect(0,0,100,100); // x,y, width, height
-// myShape.curser = non-null;
+	backing.mask = myCircle;
 
-myShape.x = 300;
-myShape.y = 50;
+	var myCircle = new zim.Circle(40, "blue");
+	//stage.addChild(myCircle);
 
-stage.addChild(myShape);
+	var myShape = new createjs.Shape();
 
-zim.drag(myShape);
-myShape.on("mousedown", function(){
-	// stage.addChild(myShape);
-	// stage.setChildIndex(myShape,stage.numChildren-1); // bring to top
-	zog("down"); // console.log
-});
+	myShape.graphics.beginFill("red").drawCircle(0, 0, 40);
+
+	myShape.x = 200;
+	myShape.y = 200;
+	stage.addChild(myShape);
 
 
-// drawing circle
 
-var myCircle = new createjs.Shape();
+	myCircle.x = stageW/2;
+	myCircle.y = stageH/2;
 
-var g = myCircle.graphics; // instead of writing mycircle.graphics everytime
-var r = 50;
-g.beginFill("red");
-g.drawCircle(0,0,r);
+	backing.scaleX = backing.scaleY = .5;
 
-stage.addChildAt(myCircle, 0);
+	backing.mask = myShape;
 
-myCircle.x = myCircle.y = 400;
-zim.drag(myCircle, new createjs.Rectangle(50,50,stageW-r*2,stageH-r*2) );
-
-// new shape /////
-var myLine = new createjs.Shape();
-var g = myLine.graphics;
-
-
-g.f("black"); // fill
-g.s("black"); // beginStroke
-// g.ss(2); // strokestyle
-g.mt(0,0); // moveTo
-g.lt(100,100);
-// g.lt(0,100);
-// g.lt(200,200);
-
-stage.addChildAt(myLine, 0);
-
-myLine.x = 200;
-myLine.y = 200;
+	stage.update();
+}
 
 stage.update();
 

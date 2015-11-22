@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Collections - JavaScript Building Basics</title>
+<title>damping</title>
 
 <!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
 <!-- see http://zimjs.com/templates for more templates and meta tags -->
@@ -44,38 +44,37 @@ frame.on("ready", function() {
 	collections(); // comment this out when you have preload going
 
 
-	var imagePath = "images/";
-	var manifest = [{id:"me", src:"meandbrain.png"}];
-
-
-	var bit = new createjs.Bitmap("meandbrain.png");
-	bit.x = 700;
-	bit.y = 500;
-
-	stage.addChild(bit);
-	stage.update();
-
-
-	var circle = new createjs.Shape();
-	circle.graphics.beginFill("red").drawCircle(0, 0, 50);
-	circle.x = 730;
-	circle.y = 550;
-	circle.cursor = "pointer";
-	stage.addChild(circle);
-	stage.update();
-
-
-
-
 	function collections() {
 
 		zog("____1. COLLECTIONS ____");
 		makeTitle("Collections");
 
+
 		// put code in here to make collection!
 
 
+		var circle = new zim.Circle(50, "blue");
+		stage.addChild(circle);
+		circle.x = stageW/2;
+		circle.y = stageH/2;
 
+		// circle.scaleX = scaleMin;
+		// circle.scaleY = scaleMin;
+		circle.alpha = 1;
+
+
+		var damp = new zim.Damp(null, .3);
+		var damp2 = new zim.Damp(null, .3);
+
+	 createjs.Ticker.frameRate = 60;
+	 createjs.Ticker.on("tick", function() {
+
+				circle.x = damp.convert(stage.mouseX);
+				circle.y = damp2.convert(stage.mouseY);
+				// circle.y = stage.mouseY;
+				stage.update();
+
+		});
 
 
 

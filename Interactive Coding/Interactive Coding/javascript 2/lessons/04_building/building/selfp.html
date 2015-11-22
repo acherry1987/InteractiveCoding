@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>JavaScript Building Basics</title>
+<link href="building.css" rel="stylesheet" type="text/css" />
+
+<!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
+<!-- see http://zimjs.com/templates for more templates and meta tags -->
+
+<script>var zon = true; // true for comments from zim code</script>
+<script src="../../../code/zim_1.4.4.js"></script>
+<script src="../../../code/createjs-2015.05.21.min.js"></script>
+<!-- should use CDN links available from CreateJS and ZIM sites -->
+
+<style>
+	body {margin:0px; padding:0px; background-color:#000;}
+	#myCanvas {position:absolute; background-color:#FFF;}
+</style>
+
+<script>
+
+// SCALING OPTIONS
+// "none"		sets canvas and stage to dimensions and does not scale if window changes
+// "fit"		sets canvas and stage to dimensions and scales to fit inside window size
+// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+// "full"		sets canvas and stage to window size (canvas is actually set to screen size)
+
+var scaling = "fit"; // full automatically sets width and height to window size
+var width = 960;
+var height = 640;
+var frame = new zim.Frame(scaling, width, height);
+frame.on("ready", function() {
+	zog("ready from ZIM Frame - Load");
+
+function buttonsAndPanes() {
+
+		var button = new zim.Button(240, 90, "POPUP", 44);
+			button.x = (stageW - button.getBounds().width)/2;
+			button.y = 400;
+		stage.addChild(button);
+
+		var pane = makePane(400,150,"white");
+				pane.x = (stageW - pane.getBounds().width) / 2;
+				pane.y = 150;
+
+		var myText = new createjs.Text("MESSAGE", "40px Verdana", "black");
+				myText.textAlign = "center";
+				myText.textBaseline = "middle";
+				myText.x = pane.getBounds().width / 2;
+				myText.y = pane.getBounds().height / 2;
+				pane.addChild(myText);
+
+			pane.on("close", function() {
+				stage.removeChild(pane);
+				stage.update();
+			});
+
+			button.on("click", function() {
+				stage.addChild(pane);
+				stage.update();
+			});
+
+			stage.update();
+	}
+
+</script>
+
+
+</head>
+
+<body>
+<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+</html>

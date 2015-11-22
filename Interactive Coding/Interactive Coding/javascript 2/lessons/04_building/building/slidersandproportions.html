@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8" />
-<title>Collections - JavaScript Building Basics</title>
+<title>Sliders and Proportions</title>
 
 <!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
 <!-- see http://zimjs.com/templates for more templates and meta tags -->
@@ -44,37 +44,51 @@ frame.on("ready", function() {
 	collections(); // comment this out when you have preload going
 
 
-	var imagePath = "images/";
-	var manifest = [{id:"me", src:"meandbrain.png"}];
-
-
-	var bit = new createjs.Bitmap("meandbrain.png");
-	bit.x = 700;
-	bit.y = 500;
-
-	stage.addChild(bit);
-	stage.update();
-
-
-	var circle = new createjs.Shape();
-	circle.graphics.beginFill("red").drawCircle(0, 0, 50);
-	circle.x = 730;
-	circle.y = 550;
-	circle.cursor = "pointer";
-	stage.addChild(circle);
-	stage.update();
-
-
-
-
 	function collections() {
 
 		zog("____1. COLLECTIONS ____");
 		makeTitle("Collections");
 
+
+
+		var bar = new zim.Rectangle(100, 2, "black");
+		stage.addChild(bar);
+
+		bar.x = 200;
+		bar.y = 200;
 		// put code in here to make collection!
 
+		var knob = new zim.Rectangle(20, 30, "red", null, null, 6);
+		stage.addChild(knob);
+		zim.centerReg(knob);
+		knob.x = 200;
+		knob.y = 200;
 
+		knob.shadow = new createjs.Shadow("#000000", 5, 5, 10);
+
+		zim.drag (knob, new createjs.Rectangle(bar.x, bar.y, bar.width, 0),null, "pointer");
+
+
+var scale;
+var scaleMin = .5;
+var scaleMax = 1.5;
+var scaleDiff = scaleMax - scaleMin;
+
+		knob.on("pressmove", function() {
+			zog(knob.x-bar.x);
+			scale = scaleMin + scaleDiff * (knob.x - bar.x) / bar.width;
+			zim.scale(circle, scale);
+			stage.update();
+
+		});
+
+		var circle = new zim.Circle(50, "blue");
+		stage.addChild(circle);
+		circle.x = stageW/2;
+		circle.y = stageH/2;
+		zim.scale(circle, ScaleMin);
+		// circle.scaleX = scaleMin;
+		// circle.scaleY = scaleMin;
 
 
 

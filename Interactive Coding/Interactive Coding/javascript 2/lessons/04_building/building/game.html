@@ -1,0 +1,288 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>game</title>
+
+	<!-- for CreateJS and ZIMjs http://zimjs.com - free to modify - Dan Zen 2015 -->
+	<!-- see http://zimjs.com/templates for more templates and meta tags -->
+
+	<script>
+		var zon = true; // true for comments from zim code
+	</script>
+	<script src="../../../code/zim_1.4.4.js"></script>
+	<script src="../../../code/createjs-2015.05.21.min.js"></script>
+	<!-- should use CDN links available from CreateJS and ZIM sites -->
+
+	<style>
+		body {
+			margin: 0px;
+			padding: 0px;
+			background-color: #000;
+		}
+
+		#myCanvas {
+			position: absolute;
+			background-color: #fff;
+		}
+	</style>
+
+	<script>
+		// SCALING OPTIONS
+		// "none"		sets canvas and stage to dimensions and does not scale if window changes
+		// "fit"		sets canvas and stage to dimensions and scales to fit inside window size
+		// "outside"	sets canvas and stage to dimensions and scales to fit outside window size
+		// "full"		sets canvas and stage to window size (canvas is actually set to screen size)
+
+		var scaling = "fit"; // fit scales to fit the browser window while keeping the aspect ratio
+		var width = 960;
+		var height = 640;
+		var frame = new zim.Frame(scaling, width, height);
+		frame.on("ready", function() {
+			zog("ready from ZIM Frame");
+
+			var stage = frame.stage;
+			var stageW = frame.width;
+			var stageH = frame.height;
+
+			// used for tiles if there are tiles
+			var squareW = 120;
+			var squareH = 90;
+			var squareS = 20;
+
+			// collections(); // comment this out when you have preload going
+
+			var imagePath = "images/";
+			var manifest = [{
+				id: "backing",
+				src: "leaves.jpeg"
+			}, {
+				id: "eye",
+				src: "eyes.png"
+			}];
+			var preload = new createjs.LoadQueue(false, imagePath);
+			preload.loadManifest(manifest);
+			preload.on("complete", collections);
+
+
+			function collections() {
+
+				zog("____1. GAME ____");
+				makeTitle("Collections");
+
+
+				var newpic = new createjs.Bitmap(preload.getResult("eye"));
+				newpic.x = stageW / 2;
+				newpic.y = stageH / 2;
+
+
+				var backing = new createjs.Bitmap(preload.getResult("backing"));
+				stage.addChildAt(backing, 0);
+				backing.alpha = .5;
+
+				var backing2 = new createjs.Bitmap(preload.getResult("backing"));
+				stage.addChildAt(backing2, 0);
+				backing.alpha = .5;
+
+        var backing3 = new createjs.Bitmap(preload.getResult("backing"));
+				backing3.x = stageW / 2;
+				backing3.y = stageH / 2;
+
+				var scrollerSpeed = 3;
+				var scroller = new zim.Scroller(backing, backing2, 5, 1, false, 0);
+
+
+
+				function makeBoot() {
+					var newboot = new createjs.Container();
+					var top = new zim.Rectangle(100, 200, "black");
+					newboot.addChild(top);
+					var bot = new zim.Rectangle(200, 100, "black", null, null, 20);
+					bot.y = 100;
+					newboot.addChild(bot);
+					// boot.x=200;
+					// boot.y=200;
+					newboot.shadow = new createjs.Shadow("rgba(0,0,0,.5)", 10, 10, 20);
+					return newboot;
+
+				}
+
+
+				var bootscontainer = new createjs.Container();
+				stage.addChild(bootscontainer);
+
+				var boot;
+				var interval = setInterval(function() {
+					boot = makeBoot();
+					bootscontainer.addChild(boot);
+					boot.x = zim.rand(stageW);
+					boot.y = -250;
+
+					stage.update();
+
+					zim.move(boot, boot.x, stageH + 500, 3000);
+				}, 300);
+
+
+				var boot = makeBoot();
+
+				// put code in here to make collection!
+
+
+				var tomato = new zim.Circle(50, "tomato");
+				stage.addChild(tomato);
+				tomato.x = stageW / 2;
+				tomato.y = stageH / 2;
+
+				tomato.on("click", function() {
+					stage.addChild(newpic);
+					backing3.visible = false;
+					stage.addChild(backing3);
+					var index = 0;
+					var interval = setInterval(function() {
+              if (newpic.visible) {
+								newpic.visible = false;
+								backing3.visible = true;
+							} else {
+								newpic.visible = true;
+								backing3.visible = false;
+							}
+					}, 1000);
+
+					// stage.removeChild(newpic);
+				});
+
+
+
+				var speed = 15; // speed of tomato via mouse keydown
+				var direction = 0;
+
+				window.addEventListener("keydown", function(e) {
+					zog(e.keyCode); // left 37, up 38, right 39, down 40, space 32
+					if (e.keyCode == 37) { // left
+
+						// tomato.x -= speed;
+						direction = -1;
+						stage.update();
+
+					} else if (e.keyCode == 39) { // right
+
+						// tomato.x += speed;
+						direction = 1;
+						stage.update();
+
+					} else if (e.keycode == 32) {
+
+						if (scroller.speed == 0) {
+							scroller.speed = scrollerSpeed;
+						} else {
+							scroller.speed = 0;
+						}
+					}
+
+
+
+				});
+
+				window.addEventListener("keyup", function(e) {
+					direction = 0;
+				});
+
+				var damp = new zim.Damp(goal);
+
+				var goal = tomato.x;
+
+				createjs.Ticker.framerate = 60;
+				createjs.Ticker.on("tick", function() {
+					// tomato.x += direction*speed;
+
+
+					goal += direction * speed;
+					tomato.x = damp.convert(goal);
+					stage.update();
+
+
+				});
+
+
+
+
+
+				stage.update();
+			}
+
+			// making tiles in a lot of these examples
+			// so will just include this in each file
+
+			function makeTiles(num) {
+				if (typeof num === 'undefined') {
+					num = 1;
+				}
+				var tiles = new createjs.Container();
+				var tile;
+				var g;
+				for (var i = 0; i < num; i++) {
+					tile = new createjs.Shape();
+					g = tile.graphics;
+					g.beginStroke("white").setStrokeStyle(2).beginFill("#000");
+					g.drawRoundRect(0, 0, squareW, squareH, 20);
+					g.beginFill("#FFF"); // outer circle
+					g.drawCircle(squareW / 2, squareH / 2, squareH / 2 * .8);
+					g.beginFill("#000"); // inner circle
+					g.drawCircle(squareW / 2, squareH / 2, squareH / 2 * .5);
+					tile.regX = squareW / 2; // just makes snapping a little easier
+					tile.regY = squareH / 2; // because we can use the registration point to test on
+					tile.x = i * (squareW + squareS) + tile.regX;
+					tile.y = tile.regY;
+					tile.setBounds(0, 0, squareW, squareH); // for future hitTests
+					tiles.addChild(tile);
+				}
+				return tiles;
+			}
+
+			function makeTitle(t) {
+
+				var menu = new createjs.Bitmap("images/logo_s.jpg"); // was causing local error in chrome
+				var menu = new createjs.Shape();
+				menu.graphics.f("white").r(-110, -70, 220, 140); // white backing
+				menu.graphics.f("#000000").p("ALwKMIAAkiIEiAAIAAEigAB1KMIlNvoIAAPoIkiAAIAA0XIHmAAIEbOCIEhuCIHqAAIAAM8IkiAAIAAohIlaP8gAwRKMIAAstIEiAAIAAMtgAwRlpIAAkiIEiAAIAAEig");
+				menu.x = 36;
+				menu.y = 29;
+				menu.alpha = .6;
+				menu.scaleX = menu.scaleY = .18;
+				menu.cursor = "pointer";
+				stage.addChild(menu);
+				menu.on("mouseover", function() {
+					menu.alpha = .9;
+					stage.update();
+				});
+				menu.on("mouseout", function() {
+					menu.alpha = .6;
+					stage.update();
+				});
+				menu.on("click", function() {
+					zgo("index.html");
+				});
+
+				var title = new createjs.Text(t, "26px Verdana", "#933");
+				title.textBaseline = "alphabetic";
+				title.alpha = .9;
+				title.x = 72;
+				title.y = 40;
+				stage.addChild(title);
+				stage.update();
+				return title;
+			}
+
+		});
+	</script>
+
+
+</head>
+
+<body>
+	<!-- canvas with id="myCanvas" is made by zim Frame -->
+</body>
+
+</html>

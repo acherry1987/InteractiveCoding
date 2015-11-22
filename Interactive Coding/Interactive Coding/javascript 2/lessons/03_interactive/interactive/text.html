@@ -58,7 +58,7 @@ function poof(e) {
 zim.drag(myContainer, null, null, null, true);
 
 var myCircle = new zim.Circle(40, "orange");
-stage.addChild(myCircle)
+stage.addChild(myCircle);
 
 myCircle.x = stageW / 2;
 myCircle.y = stageH / 2;
@@ -105,6 +105,19 @@ mySquare.on ("mousedown", function(){
 		differenceX = stage.mouseX - mySquare.x;
 	  differenceY = stage.mouseY - mySquare.y;
 });
+
+var myText = new createjs.Text("Good Morning", "40px Impact", "green");
+stage.addChild(myText);
+myText.textalign = "center";
+myText.textBaseline = "center";
+
+myText.x = stageW/2;
+myText.y = stageH/2;
+
+
+
+
+
 
 
 stage.update();
